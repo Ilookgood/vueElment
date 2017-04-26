@@ -1,29 +1,27 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import * as actions from './actions'
-import * as getters from './getters'
-
 Vue.use(Vuex)
-
-// 应用初始状态
-const state = {
-    count: 10
-}
-
-// 定义所需的 mutations
-const mutations = {
-    INCREMENT(state) {
-        state.count++
+const store = new Vuex.Store({
+    state: {
+        user_name: ''
     },
-    DECREMENT(state) {
-        state.count--
+    mutations: {
+        "SET_MSG": function(state, user_name) {
+            state.user_name = user_name
+            console.log('保存', state.user_name)
+        }
+    },
+    getters: {
+        "GET_MSG": function(state) {
+            console.log('获取', state.user_name)
+            return state.user_name
+        }
+    },
+    actions: {
+        "SET_MSG": function(state, user_name) {
+            console.log('获取', state.user_name)
+            store.commit("SET_MSG", user_name)
+        }
     }
-}
-
-// 创建 store 实例
-export default new Vuex.Store({
-    actions,
-    getters,
-    state,
-    mutations
 })
+export default store

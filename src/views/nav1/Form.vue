@@ -48,14 +48,17 @@
 		<!--编辑界面-->
 		<el-dialog title="编辑" v-model="editFormVisible" :close-on-click-modal="false">
 			<el-form :model="editForm" label-width="80px" :rules="editFormRules" ref="editForm">
-				<el-form-item label="医院名称" prop="name">
+				<el-form-item label="门诊名称" prop="name">
 					<el-input v-model="editForm.name" auto-complete="off"></el-input>
 				</el-form-item>
-				<el-form-item label="是否可用" prop="is_enable">
+				<el-form-item label="所属医院" prop="hospitalName">
+					<Search ></Search>
+				</el-form-item>
+				<el-form-item label="是否对外开放" prop="is_enable">
 					<el-radio class="radio" v-model="editForm.is_enable" label="1" auto-complete="off">是</el-radio>
 					<el-radio class="radio" v-model="editForm.is_enable" label="2" auto-complete="off">否</el-radio>
 				</el-form-item>
-				<el-form-item label="医院等级" prop="hospitalLevel">
+				<el-form-item label="所属医院等级" prop="hospitalLevel">
 					<el-select v-model="editForm.hospitalLevel" clearable placeholder="请选择">
 						<el-option
 								v-for="item in options"
@@ -64,11 +67,14 @@
 						</el-option>
 					</el-select>
 				</el-form-item>
-				<el-form-item label="电话号码"  prop="phone">
+				<el-form-item label="联系电话"  prop="phone">
 					<!--	<el-date-picker type="date" placeholder="选择日期" v-model="editForm.birth"></el-date-picker>-->
 					<el-input type="number" placeholder="输入电话号码"  auto-complete="off" v-model="editForm.phone"></el-input>
 				</el-form-item>
-				<el-form-item label="医院地址" prop="address" >
+				<el-form-item label="传真" prop="address" >
+					<el-input type="textarea" v-model="editForm.fax"  auto-complete="off"></el-input>
+				</el-form-item>
+				<el-form-item label="联系地址" prop="address" >
 					<el-input type="textarea" v-model="editForm.address"  auto-complete="off"></el-input>
 				</el-form-item>
 			</el-form>
@@ -77,7 +83,6 @@
 				<el-button type="primary" @click.native="editSubmit" :loading="editLoading">提交</el-button>
 			</div>
 		</el-dialog>
-
 		<!--新增界面-->
 		<el-dialog title="新增" v-model="addFormVisible" :close-on-click-modal="false">
 			<el-form :model="addForm" label-width="80px" :rules="addFormRules" ref="addForm">
@@ -85,14 +90,12 @@
 					<el-input v-model="addForm.name" auto-complete="off"></el-input>
 				</el-form-item>
 				<el-form-item label="所属医院" prop="hospitalName">
-					<!--<el-input v-model="addForm.is_enable" auto-complete="off"></el-input>-->
-					<el-select v-model="addForm.hospitalName" clearable placeholder="请选择">
-						<el-option
-								v-for="item in options"
-								:label="item.label"
-								:value="item.value">
-						</el-option>
-					</el-select>
+				<search></search>
+				</el-form-item>
+				<el-form-item label="是否对外开放" prop="is_enable">
+					<!--<el-input type="textarea" v-model="addForm.address"  auto-complete="off"></el-input>-->
+					<el-radio class="radio" v-model="addForm.is_enable" label="1" auto-complete="off">是</el-radio>
+					<el-radio class="radio" v-model="addForm.is_enable" label="2" auto-complete="off">否</el-radio>
 				</el-form-item>
 				<el-form-item label="医院等级" prop="hospitalLevel">
 					<!--	<el-input v-model="addForm.level"  auto-complete="off"></el-input>-->
@@ -115,18 +118,13 @@
 					<el-input type="textarea" v-model="addForm.address"  auto-complete="off"></el-input>
 				</el-form-item>
 
-				<el-form-item label="是否对外开放" prop="is_enable">
-					<!--<el-input type="textarea" v-model="addForm.address"  auto-complete="off"></el-input>-->
-					<el-radio class="radio" v-model="addForm.is_enable" label="1" auto-complete="off">是</el-radio>
-					<el-radio class="radio" v-model="addForm.is_enable" label="2" auto-complete="off">否</el-radio>
-				</el-form-item>
+
 			</el-form>
 			<div slot="footer" class="dialog-footer">
 				<el-button @click.native="addFormVisible = false">取消</el-button>
 				<el-button type="primary" @click.native="addSubmit" :loading="addLoading">提交</el-button>
 			</div>
 		</el-dialog>
-
 		<!--工具条-->
 		<!--<el-col :span="24" class="toolbar">
 		&lt;!&ndash;	<el-button type="danger" @click="batchRemove" :disabled="this.sels.length===0">批量删除</el-button>&ndash;&gt;
@@ -136,22 +134,17 @@
 		<el-pagination v-bind:current-Page="start" v-bind:page-size="length" :total="total"
 					   layout="total,sizes,prev,pager,next,jumper" v-bind:page-sizes="pageSizes"
 					   v-on:size-change="sizeChange" v-on:current-change="pageIndexChange">
-
 		</el-pagination>
-
-
-
 	</section>
 </template>
-
 <script>
-	/*	import util from '../../common/js/util'*/
-    import NProgress from 'nprogress'
+    import { mapGetters } from 'vuex'
+	import Search from './Search'
     import axios from 'axios';
-	/*	import { getUserListPage} from '../../api/api';*/
-	/*import { getUserList} from '../../api/api';*/
-
     export default {
+       components:{
+            'Search':Search
+		},
         data() {
             return {
                 filters: {
@@ -172,11 +165,14 @@
                 }],
                 users: [],
                 is_enable: '',
+                hospitalName:'',
+                hospitaLevel:'',
+                address:'',
+                label:'',
+                fax:'',
                 total: 0,
-                level: 1,
                 listLoading: false,
                 phone:'152225522',
-                label:'522511125',
                 sels: [],//列表选中列
                 start:0,
                 length:10,
@@ -193,9 +189,12 @@
                 editForm: {
                     id: '',
                     name: '',
-                    level: '',
+                    hospitalName: '',
+                    hospitalLevel:'',
+                    fax:'',
                     is_enable: 0,
                     phone: '',
+                    label:'',
                     address: ''
                 },
 
@@ -219,43 +218,51 @@
                 addForm: {
                     name: '',
                     is_enable: '1',
-                    level: '',
+                    hospitalName: '',
+                    hospitalLevel:'',
+                    fax:'',
                     phone: '',
+                    label:'',
                     address: ''
                 }
 
             }
         },
+
         methods: {
-
-
             sizeChange: function (length) {
                 this.length = length;
-                console.log(this.length)
                 this.getUsers();
             },
             pageIndexChange: function (start) {
-                console.log(this.start)
                 this.start = start;
                 this.getUsers();
             },
 
-
+           /* names(name){
+                this.hospitalName = name;
+			},*/
             //获取用户列表
             getUsers() {
                 let para = {
                     page: this.page,
                     name: this.filters.name,
                     is_enable: this.is_enable,
-                    level: this.level,
                     phone: this.phone,
                     label: this.label,
-
+                    label:'',
+                    hospitalName: this.hospitalName,
+                    hospitalLevel:this.hospitalLevel,
+                    fax:this.fax,
                 };
-
+                computed:mapGetters({
+                    hospitalName:'SET_MSG'
+                }),
+                   /* console.log(hospitalName)*/
                 this.$http.get("http://www.test.api/api/departments?start="+ this.start + "&length="+this.length+"&name="+para.name).then(
                     (res) => {
                         // 处理成功的结果
+
                         console.log(para.is_enable)
                       /*  for (let i=0; i<res.body.data.length; i++){
                             if(res.body.data[i].is_enable==1){
@@ -264,7 +271,6 @@
                         }*/
                      /*   console.log(res.body.data[0].is_enable)*/
                         this.total = res.body.total
-                        console.log(this.total)
                         this.users = res.body.data
                         this.listLoading = false
 
@@ -288,7 +294,7 @@
                     this.listLoading = true;
                     //NProgress.start();
                     let para = { id: row.id };
-                    let url='http://www.test.api/api/hospitals'
+                    let url='http://www.test.api/api/departments'
                     this.$http.delete(url+'/'+para.id).then(
                         (res) => {
                             // 处理成功的结果
@@ -319,37 +325,41 @@
                 this.addForm = {
                     name: '',
                     is_enable: '1',
-                    level: '',
+					hospistalName:'',
+                    hospitalLevel:'',
+                    fax:'',
+                    label:'',
                     phone: '',
                     address: ''
+
                 };
             },
+            /*searchdata:function (searchanme) {
+                this.editForm.name=searchanme;
+                console.log(this.editForm.name)
+            },*/
             //编辑
             editSubmit: function () {
                 this.$refs.editForm.validate((valid) => {
                     if (valid) {
                         this.$confirm('确认提交吗？', '提示', {}).then(() => {
                             this.editLoading = true;
-                            //NProgress.start();
                             let para = Object.assign({}, this.editForm);
-                            let jsonli = {'name':para.name,'is_enable':para.is_enable,'level':para.level,'phone':para.phone,'address':para.address}
-                            let url = '/hospitals';
+                            let jsonli = {'name':para.name,'is_enable':para.is_enable,'hospitalName':para.hospitalName,'hospitalLevel':para.hospitalLevel,'fax':para.fax,'phone':para.phone,'address':para.address}
+                            let url = 'http://www.test.api/api/departments';
                             this.$http.put(url+'/'+para.id,jsonli).then(
                                 (res) => {
                                     // 处理成功的结果
-                                    console.log(res)
                                     this.addLoading = true;
-                                    console.log(this.addLoading = false)
                                     this.$message({
                                         message: '提交成功',
                                         type: 'success',
                                     });
                                     this.editFormVisible = false;
-                                    this.$refs['addForm'].resetFields();
+                              /*    this.$refs['addForm'].resetFields();*/
                                     this.getUsers();
                                 },(ere) => {
                                     console.log(ere)
-
                                 }
                             )
                         });
@@ -365,18 +375,17 @@
                             this.addLoading = true;
 							/*	NProgress.start();*/
                             let para = Object.assign({}, this.addForm);
-                            console.log(para.level)
-                            this.$http.post("http://www.test.api/api/hospitals",{'name':para.name,'is_enable':para.is_enable,'level':para.level,'phone':para.phone,'address':para.address},{emulateJSON: true}).then(
+                            let jsonli = {'name':para.name,'is_enable':para.is_enable,'hospitalName':para.hospitalName,'hospitalLevel':para.hospitalLevel,'fax':para.fax,'phone':para.phone,'address':para.address}
+                            this.$http.post("http://www.test.api/api/departments",jsonli,{emulateJSON: true}).then(
                                 (res) => {
                                     // 处理成功的结果
                                     this.addLoading = false;
                                     this.$message({
                                         message: '提交成功',
                                         type: 'success',
-
                                     });
                                     this.editFormVisible = false;
-                                    this.$refs['addForm'].resetFields();
+                                 /*   this.$refs['addForm'].resetFields();*/
                                     this.getUsers();
                                 },(ere) => {
 

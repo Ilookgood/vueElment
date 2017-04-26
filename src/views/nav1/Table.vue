@@ -313,23 +313,23 @@ import axios from 'axios';
 							//NProgress.start();
 							let para = Object.assign({}, this.editForm);
                         let jsonli = {'name':para.name,'is_enable':para.is_enable,'level':para.level,'phone':para.phone,'address':para.address}
-						let url = '/hospitals';
+						let url = 'http://www.test.api/api/hospitals';
                            this.$http.put(url+'/'+para.id,jsonli).then(
                                 (res) => {
                                     // 处理成功的结果
-                                   console.log(res)
+                                 /*  console.log(res)*/
                                     this.addLoading = true;
-                                   console.log(this.addLoading = false)
+                                 /*  console.log(this.addLoading = false)*/
                                     this.$message({
                                         message: '提交成功',
                                         type: 'success',
                                     });
-                                    this.editFormVisible = false;
-                                  this.$refs['addForm'].resetFields();
+                                    this.editFormVisible = true;
                                     this.getUsers();
+                                  this.$refs['addForm'].resetFields();
+
                                 },(ere) => {
                                     console.log(ere)
-
                                 }
                             )
 						});
@@ -337,7 +337,6 @@ import axios from 'axios';
 				});
 			},
 			//新增
-
 			addSubmit: function () {
 				this.$refs.addForm.validate((valid) => {
 					if (valid) {
@@ -353,14 +352,11 @@ import axios from 'axios';
                                     this.$message({
                                         message: '提交成功',
                                         type: 'success',
-
                                     });
                                     this.editFormVisible = false;
                                     this.$refs['addForm'].resetFields();
                                     this.getUsers();
                                 },(ere) => {
-
-
                                 }
                             )
 						});
