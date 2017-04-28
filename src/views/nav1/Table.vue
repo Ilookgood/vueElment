@@ -254,11 +254,7 @@ import axios from 'axios';
 					 console.log(ere)
 				 }
 				 )
-
                 console.log(para)
-
-
-
             },
 
 			//删除

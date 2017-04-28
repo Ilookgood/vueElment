@@ -33,14 +33,19 @@
 						<el-menu-item v-if="item.leaf&&item.children.length>0" :index="item.children[0].path"><i :class="item.iconCls"></i>{{item.children[0].name}}</el-menu-item>
 					</template>
 				</el-menu>-->
-				<el-menu :router = "router"   default-active="2" class="el-menu-vertical-demo" @open="handleOpen" @close="handleClose" theme="dark">
+				<el-menu   :default-active="$route.path" :router = "router"   class="el-menu-vertical-demo" @open="handleOpen" @close="handleClose" theme="dark">
 					<el-submenu index="1">
 						<template slot="title">运营管理</template>
 						<el-submenu index="1-4">
 							<template slot="title">医院管理</template>
 							<el-menu-item index="/table">医院列表</el-menu-item>
 							<el-menu-item index="/form">门诊列表</el-menu-item>
-							
+						</el-submenu>
+						<el-submenu index="1-5">
+							<template slot="title">药品管理</template>
+							<el-menu-item index="/brands">药品品牌</el-menu-item>
+							<el-menu-item index="/drugscate">药品类别</el-menu-item>
+
 						</el-submenu>
 					</el-submenu>
 				</el-menu>

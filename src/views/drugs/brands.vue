@@ -67,7 +67,7 @@
 </template>
 <script>
 	import { mapGetters } from 'vuex'
-	import Search from './Search'
+	/*import Search from './Search'*/
     import axios from 'axios';
 	var baseUrl = 'http://www.test.api/api/';	
 	
