@@ -51,8 +51,8 @@
 				<el-form-item label="门诊名称" prop="name">
 					<el-input v-model="editForm.name" auto-complete="off"></el-input>
 				</el-form-item>
-				<el-form-item label="所属医院" prop="hospitalName">
-					<Search ></Search>
+				<el-form-item label="所属医院" prop="hospital">
+					<Search @searchname="searchname"></Search>
 				</el-form-item>
 				<el-form-item label="是否对外开放" prop="is_enable">
 					<el-radio class="radio" v-model="editForm.is_enable" label="1" auto-complete="off">是</el-radio>
@@ -90,7 +90,7 @@
 					<el-input v-model="addForm.name" auto-complete="off"></el-input>
 				</el-form-item>
 				<el-form-item label="所属医院" prop="hospitalName">
-				<search></search>
+					<search @searchname="searchname"></search>
 				</el-form-item>
 				<el-form-item label="是否对外开放" prop="is_enable">
 					<!--<el-input type="textarea" v-model="addForm.address"  auto-complete="off"></el-input>-->
@@ -138,13 +138,13 @@
 	</section>
 </template>
 <script>
-    import { mapGetters } from 'vuex'
-	import Search from './Search'
+
+    import Search from './Search'
     import axios from 'axios';
     export default {
-       components:{
+        components:{
             'Search':Search
-		},
+        },
         data() {
             return {
                 filters: {
@@ -165,7 +165,6 @@
                 }],
                 users: [],
                 is_enable: '',
-                hospitalName:'',
                 hospitaLevel:'',
                 address:'',
                 label:'',
@@ -189,15 +188,13 @@
                 editForm: {
                     id: '',
                     name: '',
-                    hospitalName: '',
-                    hospitalLevel:'',
+                    hospital: '',
                     fax:'',
                     is_enable: 0,
                     phone: '',
                     label:'',
                     address: ''
                 },
-
                 addFormVisible: false,//新增界面是否显示
                 addLoading: false,
                 addFormRules: {
@@ -218,8 +215,7 @@
                 addForm: {
                     name: '',
                     is_enable: '1',
-                    hospitalName: '',
-                    hospitalLevel:'',
+                    hospital: '',
                     fax:'',
                     phone: '',
                     label:'',
@@ -228,7 +224,6 @@
 
             }
         },
-
         methods: {
             sizeChange: function (length) {
                 this.length = length;
@@ -238,10 +233,6 @@
                 this.start = start;
                 this.getUsers();
             },
-
-           /* names(name){
-                this.hospitalName = name;
-			},*/
             //获取用户列表
             getUsers() {
                 let para = {
@@ -250,42 +241,29 @@
                     is_enable: this.is_enable,
                     phone: this.phone,
                     label: this.label,
-                    label:'',
                     hospitalName: this.hospitalName,
                     hospitalLevel:this.hospitalLevel,
                     fax:this.fax,
                 };
-                computed:mapGetters({
-                    hospitalName:'SET_MSG'
-                }),
-                   /* console.log(hospitalName)*/
-                this.$http.get("http://www.test.api/api/departments?start="+ this.start + "&length="+this.length+"&name="+para.name).then(
-                    (res) => {
-                        // 处理成功的结果
-
-                        console.log(para.is_enable)
-                      /*  for (let i=0; i<res.body.data.length; i++){
-                            if(res.body.data[i].is_enable==1){
-                                this.is_enable='是'
-                            }
-                        }*/
-                     /*   console.log(res.body.data[0].is_enable)*/
-                        this.total = res.body.total
-                        this.users = res.body.data
-                        this.listLoading = false
-
-                    }, (ere) => {
-                        // 处理失败的结果
-                        console.log(ere)
-                    }
-                )
-
-                console.log(para)
-
-
-
+                    this.$http.get("http://17p01d9617.iask.in/api/departments?start="+ this.start + "&length="+this.length+"&name="+para.name).then(
+                        (res) => {
+                            // 处理成功的结果
+							  for (let i=0; i<res.body.data.length; i++){
+							 if(res.body.data[i].is_enable==1){
+							     console.log(res.body.data[i].is_enable)
+                                 res.body.data[i].is_enable='是'
+							 }else {
+                                 res.body.data[i].is_enable='否'
+                                 }
+							 }
+                            this.total = res.body.total;
+                            this.users = res.body.data;
+                            this.listLoading = false;
+                        }, (ere) => {
+                            // 处理失败的结果
+                        }
+                    )
             },
-
             //删除
             handleDel: function (index, row) {
                 this.$confirm('确认删除该记录吗?', '提示', {
@@ -294,7 +272,7 @@
                     this.listLoading = true;
                     //NProgress.start();
                     let para = { id: row.id };
-                    let url='http://www.test.api/api/departments'
+                    let url='http://17p01d9617.iask.in/api/departments'
                     this.$http.delete(url+'/'+para.id).then(
                         (res) => {
                             // 处理成功的结果
@@ -319,13 +297,17 @@
                 this.editFormVisible = true;
                 this.editForm = Object.assign({}, row);
             },
+            searchname:function(hospital){
+                this.editForm.hospital=hospital
+                this.addForm.hospital=hospital
+			},
             //显示新增界面
             handleAdd: function () {
                 this.addFormVisible = true;
                 this.addForm = {
                     name: '',
                     is_enable: '1',
-					hospistalName:'',
+                    hospital:'',
                     hospitalLevel:'',
                     fax:'',
                     label:'',
@@ -334,10 +316,6 @@
 
                 };
             },
-            /*searchdata:function (searchanme) {
-                this.editForm.name=searchanme;
-                console.log(this.editForm.name)
-            },*/
             //编辑
             editSubmit: function () {
                 this.$refs.editForm.validate((valid) => {
@@ -345,8 +323,8 @@
                         this.$confirm('确认提交吗？', '提示', {}).then(() => {
                             this.editLoading = true;
                             let para = Object.assign({}, this.editForm);
-                            let jsonli = {'name':para.name,'is_enable':para.is_enable,'hospitalName':para.hospitalName,'hospitalLevel':para.hospitalLevel,'fax':para.fax,'phone':para.phone,'address':para.address}
-                            let url = 'http://www.test.api/api/departments';
+                            let jsonli = {'name':para.name,'is_enable':para.is_enable,'hospital':para.hospital,'fax':para.fax,'phone':para.phone,'address':para.address}
+                            let url = 'http://17p01d9617.iask.in/api/departments';
                             this.$http.put(url+'/'+para.id,jsonli).then(
                                 (res) => {
                                     // 处理成功的结果
@@ -356,7 +334,7 @@
                                         type: 'success',
                                     });
                                     this.editFormVisible = false;
-                              /*    this.$refs['addForm'].resetFields();*/
+									/*    this.$refs['addForm'].resetFields();*/
                                     this.getUsers();
                                 },(ere) => {
                                     console.log(ere)
@@ -375,8 +353,8 @@
                             this.addLoading = true;
 							/*	NProgress.start();*/
                             let para = Object.assign({}, this.addForm);
-                            let jsonli = {'name':para.name,'is_enable':para.is_enable,'hospitalName':para.hospitalName,'hospitalLevel':para.hospitalLevel,'fax':para.fax,'phone':para.phone,'address':para.address}
-                            this.$http.post("http://www.test.api/api/departments",jsonli,{emulateJSON: true}).then(
+                            let jsonli = {'name':para.name,'is_enable':para.is_enable,'hospital':para.hospital,'hospitalLevel':para.hospitalLevel,'fax':para.fax,'phone':para.phone,'address':para.address}
+                            this.$http.post("http://17p01d9617.iask.in/api/departments",jsonli,{emulateJSON: true}).then(
                                 (res) => {
                                     // 处理成功的结果
                                     this.addLoading = false;
@@ -385,7 +363,7 @@
                                         type: 'success',
                                     });
                                     this.editFormVisible = false;
-                                 /*   this.$refs['addForm'].resetFields();*/
+									/*   this.$refs['addForm'].resetFields();*/
                                     this.getUsers();
                                 },(ere) => {
 

@@ -1,9 +1,9 @@
 <template>
     <div>
         <div class="search-input">
-            <input type="text" v-model="name"  @keyup="get($event)" @keydown.enter="search(name)" @keydown.down="selectDown()" @keydown.up.prevent="selectUp()">
+            <input type="text" v-model="name"   @keyup="get($event)" @keydown.enter="search()" @keydown.down="selectDown()" @keydown.up.prevent="selectUp()">
             <span class="search-reset" @click="clearInput()">&times;</span>
-         <!-- <button class="search-btn" @click="search()">搜一下</button>-->
+            <!-- <button class="search-btn" @click="search()">搜一下</button>-->
             <div class="search-select">
                 <!-- transition-group也是vue2.0中的新特性,tag='ul'表示用ul包裹v-for出来的li -->
                 <transition-group name="itemfade" tag="ul" class="out-in" mode="out-in" v-cloak>
@@ -17,18 +17,16 @@
 </template>
 
 <script type="text/javascript">
-    import { mapState } from 'vuex'
+
     import axios from 'axios';
-   /* import logoSelect from './logo-select.vue';*/
+    /* import logoSelect from './logo-select.vue';*/
     export default {
-        computed:mapState({
-            name:state => state.name
-        }),
         data: function() {
             return {
                 myData:[],//用来接收ajax得到的数据
                 name: '',//v-model绑定的输入框的value
                 now: -1,
+                hospital:'',
                 searchIndex: 0,
             }
         },
@@ -37,8 +35,9 @@
                 if (ev.keyCode == 38 || ev.keyCode == 40) {
                     return;
                 }
-                this.$http.get('http://www.test.api/api/hospitals?name='+ this.name).then(function(res) {
-                 let names=res.body.data;
+                this.$http.get('http://17p01d9617.iask.in/api/hospitals?hospital='+ this.hospital+'&name='+this.name).then(function(res) {
+                    let names=res.body.data;
+                    console.log(names)
                     let  hiat=this;
                     for(var i=0;i<names.length; i++ ){
                         let datas=hiat.myData.length;
@@ -47,7 +46,10 @@
                         }else if(this.name=="") {
                             hiat.myData=[]
                         }else {
-                            hiat.myData.push(names[i].name)
+                            hiat.myData.push(names[i].name);
+                            this.hospital=names[i].id;
+                            console.log(this.hospital)
+                            return
                         }
                     }
                 });
@@ -68,24 +70,24 @@
                 }
                 this.name = this.myData[this.now];
             },
-           search: function() {
+            search: function() {
                 //打开对应的搜索界面
-              /* this.$emit('searchname', this.name);*/
-               console.log(this.name)
-               this.$store.commit('SET_MSG',this.name)
-                   this.myData = [];
+                 this.$emit('searchname', this.hospital);
+                 console.log(this.hospital)
+                console.log(this.name)
+                this.myData = [];
             },
             selectHover: function(index) {
                 this.now = index
             },
             selectClick: function(index) {
                 this.name = this.myData[index];
-               this.search();
+                this.search();
             },
-          clearInput: function() {
-                this.$http.get('http://www.test.api/api/hospitals?name='+ this.name ).then(function(res) {
+            clearInput: function() {
+                this.$http.get('http://17p01d9617.iask.in/api/hospitals?name='+ this.name ).then(function(res) {
                     this.myData = [];
-                   /* console.log( this.myData+1)*/
+                    /* console.log( this.myData+1)*/
                 });
             },
             getIndex: function(index) {

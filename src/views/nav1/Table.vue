@@ -233,18 +233,19 @@ import axios from 'axios';
 
                 };
 
-             this.$http.get("http://www.test.api/api/hospitals?start="+ this.start + "&length="+this.length+"&name="+para.name).then(
+             this.$http.get("http://17p01d9617.iask.in/api/hospitals?start="+ this.start + "&length="+this.length+"&name="+para.name).then(
 				 (res) => {
 				 // 处理成功的结果
 					 console.log(para.is_enable)
                      for (let i=0; i<res.body.data.length; i++){
-                          if(res.body.data[i].is_enable==1){
-                             this.is_enable='是'
-						  }
-					 }
-				 console.log(res.body.data[0].is_enable)
+                         if(res.body.data[i].is_enable==1){
+                             console.log(res.body.data[i].is_enable)
+                             res.body.data[i].is_enable='是'
+                         }else {
+                             res.body.data[i].is_enable='否'
+                         }
+                     }
 				 this.total = res.body.total
-				 console.log(this.total)
 				 this.users = res.body.data
 				 this.listLoading = false
 
@@ -268,7 +269,7 @@ import axios from 'axios';
 					this.listLoading = true;
 					//NProgress.start();
 					let para = { id: row.id };
-					let url='http://www.test.api/api/hospitals'
+					let url='http://17p01d9617.iask.in/api/hospitals'
                     this.$http.delete(url+'/'+para.id).then(
                         (res) => {
                             // 处理成功的结果
@@ -313,7 +314,7 @@ import axios from 'axios';
 							//NProgress.start();
 							let para = Object.assign({}, this.editForm);
                         let jsonli = {'name':para.name,'is_enable':para.is_enable,'level':para.level,'phone':para.phone,'address':para.address}
-						let url = 'http://www.test.api/api/hospitals';
+						let url = 'http://17p01d9617.iask.in/api/hospitals';
                            this.$http.put(url+'/'+para.id,jsonli).then(
                                 (res) => {
                                     // 处理成功的结果
@@ -345,7 +346,7 @@ import axios from 'axios';
 						/*	NProgress.start();*/
 							let para = Object.assign({}, this.addForm);
 							console.log(para.level)
-                            this.$http.post("http://www.test.api/api/hospitals",{'name':para.name,'is_enable':para.is_enable,'level':para.level,'phone':para.phone,'address':para.address},{emulateJSON: true}).then(
+                            this.$http.post("http://17p01d9617.iask.in/api/hospitals",{'name':para.name,'is_enable':para.is_enable,'level':para.level,'phone':para.phone,'address':para.address},{emulateJSON: true}).then(
                                 (res) => {
                                     // 处理成功的结果
                                     this.addLoading = false;

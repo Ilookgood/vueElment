@@ -3,24 +3,31 @@ import Vuex from 'vuex'
 Vue.use(Vuex)
 const store = new Vuex.Store({
     state: {
-        user_name: ''
+        user_name: '',
+        user_id:'',
     },
     mutations: {
-        "SET_MSG": function(state, user_name) {
-            state.user_name = user_name
-            console.log('保存', state.user_name)
+        getName(state,name){
+            state.user_name = name;
+        },
+        hosp(state,id){
+            state.user_id = id;
         }
     },
     getters: {
-        "GET_MSG": function(state) {
-            console.log('获取', state.user_name)
-            return state.user_name
+        user_name(state){
+            return state.user_name;
+        },
+        user_id(state){
+            return state.user_id;
         }
     },
     actions: {
-        "SET_MSG": function(state, user_name) {
-            console.log('获取', state.user_name)
-            store.commit("SET_MSG", user_name)
+        getName({commit},name){
+            commit('getName',name)
+        },
+        hosp({commit},id){
+            commit('hosp',id)
         }
     }
 })
