@@ -5,11 +5,14 @@ import Main from './views/Main.vue'
 import Table from './views/nav1/Table.vue'
 import Form from './views/nav1/Form.vue'
 import user from './views/nav1/user.vue'
+import brands from './views/nav1/brands.vue'
+import drugscate from './views/drugs/drugsCate.vue'
 import Search from './views/nav1/Search.vue'
 import Page4 from './views/nav2/Page4.vue'
 import Page5 from './views/nav2/Page5.vue'
 import Page6 from './views/nav3/Page6.vue'
 import echarts from './views/charts/echarts.vue'
+
 
 let routes = [
     {
@@ -31,9 +34,12 @@ let routes = [
         name: '运营管理',
         iconCls: 'el-icon-message',//图标样式class
         children: [
-            { path: '/table', component: Table, name: '医院管理' },
-            { path: '/form', component: Form, name: '门珍管理' },
-            { path: '/user', component: user, name: '患者管理' },
+            { path: '/table',component: Table, name: '医院管理' },
+            { path: '/form',component: Form, name: '门珍管理' },
+            { path: '/user',component: user, name: '患者管理' },
+			{ path: '/brands',component: brands, name: '药品品牌' },
+			{ path: '/drugscate',component: drugscate, name: '药品类别' },
+		
         ]
     },
     {

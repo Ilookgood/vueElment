@@ -1,0 +1,1 @@
+export const baseUrl      = `http://www.test.api/api/`;
