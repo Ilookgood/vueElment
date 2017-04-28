@@ -10,6 +10,7 @@ import Page4 from './views/nav2/Page4.vue'
 import Page5 from './views/nav2/Page5.vue'
 import Page6 from './views/nav3/Page6.vue'
 import echarts from './views/charts/echarts.vue'*/
+
 let routes = [
     {
         path: '/login',
@@ -29,8 +30,13 @@ let routes = [
         name: '运营管理',
         iconCls: 'el-icon-message',
         children: [
-            { path: '/table', component: Table, name: '医院列表', },
-            { path: '/form', component: Form, name: '门珍列表' },
+
+            { path: '/table',component: Table, name: '医院管理' },
+            { path: '/form',component: Form, name: '门珍管理' },
+            { path: '/user',component: user, name: '患者管理' },
+			{ path: '/brands',component: brands, name: '药品品牌' },
+			{ path: '/drugscate',component: drugscate, name: '药品类别' },
+
         ]
     },
     /*{
