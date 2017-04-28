@@ -40,6 +40,7 @@
 							<template slot="title">医院管理</template>
 							<el-menu-item index="/table">医院列表</el-menu-item>
 							<el-menu-item index="/form">门诊列表</el-menu-item>
+							
 						</el-submenu>
 					</el-submenu>
 				</el-menu>
