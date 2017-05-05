@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="search-input">
-            <input type="text" v-model="name"   @keyup="get($event)" @keydown.enter="search()" @keydown.down="selectDown()" @keydown.up.prevent="selectUp()">
+            <input type="text" v-model="name"    @keyup="get($event)" @keydown.enter="search()" @keydown.down="selectDown()" @keydown.up.prevent="selectUp()">
             <span class="search-reset" @click="clearInput()">&times;</span>
             <!-- <button class="search-btn" @click="search()">搜一下</button>-->
             <div class="search-select">
@@ -30,6 +30,7 @@
                 searchIndex: 0,
             }
         },
+        props:["name"],
         methods: {
             get: function(ev) {
                 if (ev.keyCode == 38 || ev.keyCode == 40) {
@@ -97,13 +98,26 @@
     }
 </script>
 
-<style type="text/css">
+<style type="text/css" scoped>
     .out-in{
         margin: 0;
     }
+    .search-input input[data-v-420e089d] {
+        border: 1px solid #bfcbd9;
+        box-sizing: border-box;
+        /* width: 500px; */
+        height: 36px;
+        font-size: 18px;
+        float: left;
+        padding-left: 10px;
+        padding-right: 10px;
+        overflow: hidden;
+        width: 100%;
+        border-radius: 4px;
+    }
     .search-input {
-        height: 45px;
-        width: 600px;
+        height: 36px;
+        width: 100%;
         margin: 0 auto;
         margin-top: 10px;
         position: relative;
@@ -111,8 +125,8 @@
     .search-input input {
         border: 1px solid #e4e4e4;
         box-sizing: border-box;
-        width: 500px;
-        height: 45px;
+        width: 100%;
+        height: 36px;
         font-size: 18px;
         float: left;
         padding-left: 10px;
@@ -120,7 +134,7 @@
         overflow: hidden;
     }
     .search-btn {
-        height: 45px;
+        height: 36px;
         width: 100px;
         border: 1px solid mediumseagreen;
         background-color: mediumseagreen;
@@ -134,14 +148,14 @@
     }
     .search-select {
         position: absolute;
-        top: 45px;
-        width: 500px;
+        top: 36px;
+        width: 100%;
         box-sizing: border-box;
         z-index: 999;
     }
     .search-select li {
         border: 1px solid #d4d4d4;
-    ;
+        list-style-type: none;
         border-top: none;
         border-bottom: none;
         background-color: #fff;
@@ -149,7 +163,7 @@
     }
     .search-select-option {
         box-sizing: border-box;
-        padding: 7px 10px;
+        padding: 0px 10px;
     }
     .selectback {
         background-color: #eee !important;
@@ -184,5 +198,17 @@
         background-color: #eee !important;
         cursor: pointer
     }
-    .search-select ul{margin:0;text-align: left; }
+    .search-select ul{margin:0;text-align: left;padding:0; }
+    .search-reset[data-v-420e089d] {
+        width: 21px;
+        height: 21px;
+        position: absolute;
+        display: block;
+        line-height: 21px;
+        text-align: center;
+        cursor: pointer;
+        font-size: 20px;
+        right: 2px;
+        top: 9px;
+    }
 </style>

@@ -43,10 +43,23 @@
 						</el-submenu>
 						<el-submenu index="1-5">
 							<template slot="title">药品管理</template>
+							<el-menu-item index="/Druglist">药品列表</el-menu-item>
 							<el-menu-item index="/brands">药品品牌</el-menu-item>
-							<el-menu-item index="/drugscate">药品类别</el-menu-item>
-
+							<el-menu-item index="/drugscate">药品分类</el-menu-item>
 						</el-submenu>
+						<el-submenu index="1-6">
+							<template slot="title">代理管理</template>
+							<el-menu-item index="/HomeAgentslist">代理列表</el-menu-item>
+						</el-submenu>
+						<el-submenu index="1-7">
+							<template slot="title">医生管理</template>
+							<el-menu-item index="/Thedoctorlist">医生列表</el-menu-item>
+						</el-submenu>
+						<el-submenu index="1-8">
+							<template slot="title">患者管理</template>
+							<el-menu-item index="/Patientslist">患者列表</el-menu-item>
+						</el-submenu>
+
 					</el-submenu>
 				</el-menu>
 				<!--导航菜单-折叠后-->

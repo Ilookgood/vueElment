@@ -17,19 +17,19 @@
 
 		<!--列表-->
 		<el-table :data="users" highlight-current-row v-loading="listLoading" @selection-change="selsChange" style="width: 100%;">
-			<!--<el-table-column type="selection" width="55">
+			<el-table-column prop="name" label="药品名称" width="120"  sortable>
 			</el-table-column>
-			<el-table-column type="index" width="60">
-			</el-table-column>-->
-			<el-table-column prop="name" label="医院名称" width="120"  sortable>
+			<el-table-column prop="sn_code"   label="条形码" width="120" sortable>
 			</el-table-column>
-			<el-table-column prop="is_enable"   label="是否可用" width="120" sortable>
+			<el-table-column prop="batch_number" label="国药准字号" width="130" sortable>
 			</el-table-column>
-			<el-table-column prop="level" label="医院等级" width="120" sortable>
+			<el-table-column prop="status" label="药品状态" width="120" sortable>
 			</el-table-column>
-			<el-table-column prop="level" label="电话" width="120" sortable>
+			<el-table-column prop="unit" label="单位" min-width="120" sortable>
 			</el-table-column>
-			<el-table-column prop="address" label="医院地址" min-width="180" sortable>
+			<el-table-column prop="cateName" label="药品分类" min-width="120" sortable>
+			</el-table-column>
+			<el-table-column prop="branName" label="药品品牌" min-width="120" sortable>
 			</el-table-column>
 			<el-table-column label="操作" width="150">
 				<template scope="scope">
@@ -42,47 +42,21 @@
 		<!--编辑界面-->
 		<el-dialog title="编辑" v-model="editFormVisible" :close-on-click-modal="false">
 			<el-form :model="editForm" label-width="80px" :rules="editFormRules" ref="editForm">
-				<el-form-item label="医院名称" prop="name">
+				<el-form-item label="药品名称" prop="name">
 					<el-input v-model="editForm.name" auto-complete="off"></el-input>
 				</el-form-item>
-				<el-form-item label="是否可用" >
-					<el-radio class="radio" v-model="editForm.is_enable" label="是" >是</el-radio>
-					<el-radio class="radio" v-model="editForm.is_enable" label="否" >否</el-radio>
+				<el-form-item label="条形码" prop="sn_code">
+					<el-input v-model="editForm.sn_code" auto-complete="off"></el-input>
 				</el-form-item>
-				<el-form-item label="医院等级" prop="level">
-					<el-select v-model="editForm.level" clearable placeholder="请选择">
-					<el-option
-							v-for="item in options"
-							:label="item.label"
-							:value="item.value">
-					</el-option>
-					</el-select>
+				<el-form-item label="国药准字号" prop="batch_number">
+					<el-input v-model="editForm.batch_number" auto-complete="off"></el-input>
 				</el-form-item>
-				<el-form-item label="电话号码"  prop="phone">
-					<el-input type="number" placeholder="输入电话号码"  auto-complete="off" v-model="editForm.phone"></el-input>
+				<el-form-item label="药品状态" prop="status">
+					<el-radio class="radio" v-model="editForm.status" label="上架" >上架</el-radio>
+					<el-radio class="radio" v-model="editForm.status" label="下架" >下架</el-radio>
 				</el-form-item>
-				<el-form-item label="医院地址" prop="address" >
-					<el-input type="textarea" v-model="editForm.address"  auto-complete="off"></el-input>
-				</el-form-item>
-			</el-form>
-			<div slot="footer" class="dialog-footer">
-				<el-button @click.native="editFormVisible = false">取消</el-button>
-				<el-button type="primary" @click.native="editSubmit" :loading="editLoading">提交</el-button>
-			</div>
-		</el-dialog>
-
-		<!--新增界面-->
-		<el-dialog title="新增" v-model="addFormVisible" :close-on-click-modal="false">
-			<el-form :model="addForm" label-width="80px" :rules="addFormRules" ref="addForm">
-				<el-form-item label="医院名称" prop="name">
-					<el-input v-model="addForm.name" auto-complete="off"></el-input>
-				</el-form-item>
-				<el-form-item label="是否可用" prop="is_enable">
-					<el-radio class="radio" v-model="addForm.is_enable" label="1" >是</el-radio>
-					<el-radio class="radio" v-model="addForm.is_enable" label="2" >否</el-radio>
-				</el-form-item>
-				<el-form-item label="医院等级" prop="level">
-					<el-select v-model="addForm.level" clearable placeholder="请选择">
+				<el-form-item label="药品分类" prop="cate_id">
+					<el-select v-model="editForm.cate_id" clearable placeholder="请选择">
 						<el-option
 								v-for="item in options"
 								:label="item.label"
@@ -90,11 +64,62 @@
 						</el-option>
 					</el-select>
 				</el-form-item>
-				<el-form-item label="电话号码" prop="phone">
-					<el-input type="number" placeholder="输入电话号码"  auto-complete="off" v-model="addForm.phone"></el-input>
+				<el-form-item label="药品品牌" prop="brand_id">
+					<el-select v-model="editForm.brand_id" clearable placeholder="请选择">
+						<el-option
+								v-for="item in option"
+								:label="item.label"
+								:value="item.value">
+						</el-option>
+					</el-select>
 				</el-form-item>
-				<el-form-item label="医院地址" prop="address">
-					<el-input type="textarea" v-model="addForm.address"  auto-complete="off"></el-input>
+				<el-form-item label="单位" prop="unit">
+					<el-input type="text" placeholder="片或者盒"  auto-complete="off" v-model="editForm.unit"></el-input>
+				</el-form-item>
+			</el-form>
+			<div slot="footer" class="dialog-footer">
+				<el-button @click.native="editFormVisible = false">取消</el-button>
+				<el-button type="primary" @click.native="editSubmit" :loading="editLoading">提交</el-button>
+			</div>
+			<div>{{editForm.status}}</div>
+		</el-dialog>
+
+		<!--新增界面-->
+		<el-dialog title="新增" v-model="addFormVisible" :close-on-click-modal="false">
+			<el-form :model="addForm" label-width="80px" :rules="addFormRules" ref="addForm">
+				<el-form-item label="药品名称" prop="name">
+					<el-input v-model="addForm.name" auto-complete="off"></el-input>
+				</el-form-item>
+				<el-form-item label="条形码" prop="sn_code">
+					<el-input v-model="addForm.sn_code" auto-complete="off"></el-input>
+				</el-form-item>
+				<el-form-item label="国药准字号" prop="batch_number">
+					<el-input v-model="addForm.batch_number" auto-complete="off"></el-input>
+				</el-form-item>
+				<el-form-item label="药品状态" prop="status">
+					<el-radio class="radio" v-model="addForm.status" label="1" >上架</el-radio>
+					<el-radio class="radio" v-model="addForm.status" label="2" >下架</el-radio>
+				</el-form-item>
+				<el-form-item label="药品分类" prop="cate_id">
+					<el-select v-model="addForm.cate_id" clearable placeholder="请选择">
+						<el-option
+								v-for="item in options"
+								:label="item.label"
+								:value="item.value">
+						</el-option>
+					</el-select>
+				</el-form-item>
+				<el-form-item label="药品品牌" prop="brand_id">
+					<el-select v-model="addForm.brand_id" clearable placeholder="请选择">
+						<el-option
+								v-for="item in option"
+								:label="item.label"
+								:value="item.value">
+						</el-option>
+					</el-select>
+				</el-form-item>
+				<el-form-item label="单位" prop="unit">
+					<el-input type="text" placeholder="片或者盒"  auto-complete="off" v-model="addForm.unit"></el-input>
 				</el-form-item>
 			</el-form>
 			<div slot="footer" class="dialog-footer">
@@ -103,29 +128,18 @@
 			</div>
 		</el-dialog>
 
-		<!--工具条-->
-		<!--<el-col :span="24" class="toolbar">
-		&lt;!&ndash;	<el-button type="danger" @click="batchRemove" :disabled="this.sels.length===0">批量删除</el-button>&ndash;&gt;
-			<el-pagination layout="prev, pager, next" @current-change="handleCurrentChange" :page-size="20" :total="total" style="float:right;">
-			</el-pagination>
-		</el-col>-->
 		<el-pagination v-bind:current-Page="start" v-bind:page-size="length" :total="total"
 					   layout="total,sizes,prev,pager,next,jumper" v-bind:page-sizes="pageSizes"
 					   v-on:size-change="sizeChange" v-on:current-change="pageIndexChange">
 
 		</el-pagination>
-
-
-
 	</section>
 </template>
 
 <script>
-/*	import util from '../../common/js/util'*/
-	import NProgress from 'nprogress'
+
+import NProgress from 'nprogress'
 import axios from 'axios';
-/*	import { getUserListPage} from '../../api/api';*/
-/*import { getUserList} from '../../api/api';*/
 var baseUrl = 'http://www.test.api/api/';
 
 	export default {
@@ -134,26 +148,17 @@ var baseUrl = 'http://www.test.api/api/';
 				filters: {
 					name: ''
 				},
-                options: [{
-                    value: '1',
-                    label: '三甲A'
-                }, {
-                    value: '2',
-                    label: '三甲C'
-                }, {
-                    value: '3',
-                    label: '二甲A'
-                }, {
-                    value: '4',
-                    label: '二甲C'
-                }],
+                options:[],
+                option:[],
+                sn_code:'',
+                batch_number:'',
+                status: '1',
+                unit:'',
+                cateName: '',
+                branName: '',
 				users: [],
-                is_enable: "1",
                 total: 0,
-                level: 1,
 				listLoading: false,
-                phone:'152225522',
-                label:'',
 				sels: [],//列表选中列
                 start:0,
                 length:10,
@@ -168,12 +173,15 @@ var baseUrl = 'http://www.test.api/api/';
 				//编辑界面数据
 				editForm: {
 					id: '',
-					name: '',
-                    level: '',
-                    is_enable:"1",
-                    phone: '',
-                    address: ''
+                    name: '',
+                    sn_code: '',
+                    batch_number: '',
+                    status: '1',
+                    unit: '',
+                    cate_id:'',
+                    brand_id:''
 				},
+
 
 				addFormVisible: false,//新增界面是否显示
 				addLoading: false,
@@ -194,10 +202,12 @@ var baseUrl = 'http://www.test.api/api/';
 				//新增界面数据
 				addForm: {
                     name: '',
-                    is_enable: "1",
-                    level: '',
-                    phone: '',
-                    address: ''
+                    sn_code: '',
+                    batch_number: '',
+                    status: '1',
+                    unit: '',
+                    cate_id:'',
+                    brand_id:''
 				}
 
 			}
@@ -214,25 +224,26 @@ var baseUrl = 'http://www.test.api/api/';
                     this.getUsers();
                 },
 
-
 			//获取用户列表
 			getUsers() {
                 let para = {
-                    page: this.page,
                     name: this.filters.name,
-                    is_enable: this.is_enable,
-                    level: this.level,
-                    phone: this.phone,
-                    label: this.label,
+                    sn_code: this.sn_code,
+                    batch_number:this.batch_number,
+                    status: this.status,
+                    unit:this.unit,
+                    cateName: this.cateName,
+                    branName: this.branName,
                 };
-             this.$http.get(baseUrl+"hospitals?start="+ this.start + "&length="+this.length+"&name="+para.name).then(
+
+             this.$http.get(baseUrl+"drugs?start="+ this.start + "&length="+this.length+"&name="+para.name).then(
 				 (res) => {
 				 // 处理成功的结果
                    for (let i=0; i<res.body.data.length; i++){
-                         if(res.body.data[i].is_enable==1){
-                             res.body.data[i].is_enable='是'
+                         if(res.body.data[i].status==1){
+                             res.body.data[i].status='上架'
                          }else {
-                             res.body.data[i].is_enable='否'
+                             res.body.data[i].status='下架'
                          }
                      }
 				 this.total = res.body.total
@@ -244,7 +255,6 @@ var baseUrl = 'http://www.test.api/api/';
 					 console.log(ere)
 				 }
 				 )
-                console.log(para)
             },
 
 			//删除
@@ -254,7 +264,7 @@ var baseUrl = 'http://www.test.api/api/';
 				}).then(() => {
 					this.listLoading = true;
 					let para = { id: row.id };
-					let url='http://17p01d9617.iask.in/api/hospitals'
+					let url=baseUrl+'drugs';
                     this.$http.delete(url+'/'+para.id).then(
                         (res) => {
                             // 处理成功的结果
@@ -275,6 +285,29 @@ var baseUrl = 'http://www.test.api/api/';
 			},
 			//显示编辑界面
 			handleEdit: function (index, row) {
+                this.$http.get(baseUrl+"drugcate?").then(
+                    (res) => {
+                        this.options=[];
+                        for (let i=0; i<res.body.data.length; i++){
+                            this.options.push({
+                                value: res.body.data[i].id,
+                                label: res.body.data[i].name,
+                            })
+                        }
+                    }
+                )
+                this.$http.get(baseUrl+"brands?").then(
+                    (res) => {
+                        this.option=[];
+                        for (let i=0; i<res.body.data.length; i++){
+                            this.option.push({
+                                value: res.body.data[i].id,
+                                label: res.body.data[i].brand_name,
+                            })
+
+                        }
+                    }
+                )
 				this.editFormVisible = true;
 				this.editForm = Object.assign({}, row);
 			},
@@ -283,28 +316,53 @@ var baseUrl = 'http://www.test.api/api/';
 				this.addFormVisible = true;
 				this.addForm = {
                     name: '',
-                    is_enable: '1',
-                    level: '',
-                    phone: '',
-                    address: ''
+                    sn_code: '',
+                    batch_number: '',
+                    status: '1',
+                    unit: '',
+					cate_id:'',
+					brand_id:''
 				};
+                this.$http.get(baseUrl+"drugcate?").then(
+                    (res) => {
+                        this.options=[]
+                        for (let i=0; i<res.body.data.length; i++){
+                           this.options.push({
+                               value: res.body.data[i].id,
+                               label: res.body.data[i].name,
+                           })
+                        }
+                    }
+                )
+                this.$http.get(baseUrl+"brands?").then(
+                    (res) => {
+                        this.option=[]
+                        for (let i=0; i<res.body.data.length; i++){
+                            this.option.push({
+                                value: res.body.data[i].id,
+                                label: res.body.data[i].brand_name,
+                            })
+
+                        }
+                    }
+                )
 			},
 			//编辑
 		editSubmit: function () {
-
 				this.$refs.editForm.validate((valid) => {
 					if (valid) {
 						this.$confirm('确认提交吗？', '提示', {}).then(() => {
 							this.editLoading = false;
-							if(this.editForm.is_enable=="是"){
-                                this.editForm.is_enable="1"
-							}else {
-                                this.editForm.is_enable="2"
-							}
+                            if(this.editForm.status=="上架"){
+                                this.editForm.status="1"
+                            }else if(this.editForm.status=="下架"){
+                                this.editForm.status="2"
+                            }
 							let para = Object.assign({}, this.editForm);
-
-                        let jsonli = {'name':para.name,'is_enable':para.is_enable,'level':para.level,'phone':para.phone,'address':para.address}
-						let url = baseUrl+'hospitals';
+							console.log(para.cate_id)
+                            console.log(para.brand_id)
+                        let jsonli = {'name':para.name,'sn_code':para.sn_code,'batch_number':para.batch_number,'status':para.status,'unit':para.unit,'cate_id':para.cate_id,'brand_id':para.brand_id}
+						let url = baseUrl+'drugs';
                            this.$http.put(url+'/'+para.id,jsonli).then(
                                 (res) => {
                                     this.addLoading = true;
@@ -314,8 +372,6 @@ var baseUrl = 'http://www.test.api/api/';
                                     });
                                     this.editFormVisible = false;
                                     this.getUsers();
-                                 /* this.$refs['addForm'].resetFields();*/
-
                                 },(ere) => {
                                    this.$message({
                                        message: '请检查提交内容是否完整',
@@ -334,7 +390,7 @@ var baseUrl = 'http://www.test.api/api/';
 						this.$confirm('确认提交吗？', '提示', {}).then(() => {
 							this.addLoading = false;
 							let para = Object.assign({}, this.addForm);
-                            this.$http.post(baseUrl+"hospitals",{'name':para.name,'is_enable':para.is_enable,'level':para.level,'phone':para.phone,'address':para.address},{emulateJSON: true}).then(
+                            this.$http.post(baseUrl+"drugs",{'name':para.name,'sn_code':para.sn_code,'batch_number':para.batch_number,'status':para.status,'unit':para.unit,'cate_id':para.cate_id,'brand_id':para.brand_id},{emulateJSON: true}).then(
                                 (res) => {
                                     // 处理成功的结果
                                     this.addLoading = false;

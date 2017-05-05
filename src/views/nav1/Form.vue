@@ -25,7 +25,6 @@
 			</el-table-column>
 			<el-table-column prop="hospitalName" label="所属医院" width="120"  sortable>
 			</el-table-column>
-			<!--<el-table-column prop="is_enable"   label="是否可用" width="120" sortable>-->
 			</el-table-column>
 			<el-table-column prop="hospitalLevel" label="所属医院等级" width="150" sortable>
 			</el-table-column>
@@ -52,11 +51,11 @@
 					<el-input v-model="editForm.name" auto-complete="off"></el-input>
 				</el-form-item>
 				<el-form-item label="所属医院" prop="hospital">
-					<Search @searchname="searchname"></Search>
+					<Search @searchname="searchname"  :name=this.editForm.hospitalName></Search>
 				</el-form-item>
 				<el-form-item label="是否对外开放" prop="is_enable">
-					<el-radio class="radio" v-model="editForm.is_enable" label="1" auto-complete="off">是</el-radio>
-					<el-radio class="radio" v-model="editForm.is_enable" label="2" auto-complete="off">否</el-radio>
+					<el-radio class="radio" v-model="editForm.is_enable" label="是" auto-complete="off">是</el-radio>
+					<el-radio class="radio" v-model="editForm.is_enable" label="否" auto-complete="off">否</el-radio>
 				</el-form-item>
 				<el-form-item label="所属医院等级" prop="hospitalLevel">
 					<el-select v-model="editForm.hospitalLevel" clearable placeholder="请选择">
@@ -90,15 +89,13 @@
 					<el-input v-model="addForm.name" auto-complete="off"></el-input>
 				</el-form-item>
 				<el-form-item label="所属医院" prop="hospitalName">
-					<search @searchname="searchname"></search>
+					<search @searchname="searchname" ></search>
 				</el-form-item>
 				<el-form-item label="是否对外开放" prop="is_enable">
-					<!--<el-input type="textarea" v-model="addForm.address"  auto-complete="off"></el-input>-->
 					<el-radio class="radio" v-model="addForm.is_enable" label="1" auto-complete="off">是</el-radio>
 					<el-radio class="radio" v-model="addForm.is_enable" label="2" auto-complete="off">否</el-radio>
 				</el-form-item>
 				<el-form-item label="医院等级" prop="hospitalLevel">
-					<!--	<el-input v-model="addForm.level"  auto-complete="off"></el-input>-->
 					<el-select v-model="addForm.hospitalLevel" clearable placeholder="请选择">
 						<el-option
 								v-for="item in options"
@@ -122,7 +119,7 @@
 			</el-form>
 			<div slot="footer" class="dialog-footer">
 				<el-button @click.native="addFormVisible = false">取消</el-button>
-				<el-button type="primary" @click.native="addSubmit" :loading="addLoading">提交</el-button>
+				<el-button type="primary" @click.native="addSubmit" >提交</el-button>
 			</div>
 		</el-dialog>
 		<!--工具条-->
@@ -138,13 +135,8 @@
 	</section>
 </template>
 <script>
-
-    import Search from './Search'
     import axios from 'axios';
     export default {
-        components:{
-            'Search':Search
-        },
         data() {
             return {
                 filters: {
@@ -169,6 +161,7 @@
                 address:'',
                 label:'',
                 fax:'',
+                hospitalName:'',
                 total: 0,
                 listLoading: false,
                 phone:'152225522',
@@ -176,7 +169,6 @@
                 start:0,
                 length:10,
                 pageSizes:[10,20,50,100],
-
                 editFormVisible: false,//编辑界面是否显示
                 editLoading: false,
                 editFormRules: {
@@ -191,6 +183,7 @@
                     hospital: '',
                     fax:'',
                     is_enable: 0,
+                    hospitalName:'',
                     phone: '',
                     label:'',
                     address: ''
@@ -322,6 +315,12 @@
                     if (valid) {
                         this.$confirm('确认提交吗？', '提示', {}).then(() => {
                             this.editLoading = true;
+                            this.editLoading = false;
+                            if(this.editForm.is_enable=="是"){
+                                this.editForm.is_enable="1"
+                            }else {
+                                this.editForm.is_enable="2"
+                            }
                             let para = Object.assign({}, this.editForm);
                             let jsonli = {'name':para.name,'is_enable':para.is_enable,'hospital':para.hospital,'fax':para.fax,'phone':para.phone,'address':para.address}
                             let url = 'http://17p01d9617.iask.in/api/departments';
@@ -376,7 +375,6 @@
             },
             selsChange: function(sels) {
                 this.sels = sels;
-                console.log(this.sels )
             },
             //批量删除
 			/*		batchRemove: function () {
