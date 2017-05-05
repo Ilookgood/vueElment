@@ -124,7 +124,7 @@
 /*	import util from '../../common/js/util'*/
 	import NProgress from 'nprogress'
 import axios from 'axios';
-/*	import { getUserListPage} from '../../api/api';*/
+	import { getUserListPage} from '../../api/api';
 /*import { getUserList} from '../../api/api';*/
 var baseUrl = 'http://www.test.api/api/';
 
@@ -225,7 +225,7 @@ var baseUrl = 'http://www.test.api/api/';
                     phone: this.phone,
                     label: this.label,
                 };
-             this.$http.get(baseUrl+"hospitals?start="+ this.start + "&length="+this.length+"&name="+para.name).then(
+             this.$axios.get(baseUrl+"hospitals?start="+ this.start + "&length="+this.length+"&name="+para.name).then(
 				 (res) => {
 				 // 处理成功的结果
                    for (let i=0; i<res.body.data.length; i++){
@@ -244,6 +244,13 @@ var baseUrl = 'http://www.test.api/api/';
 					 console.log(ere)
 				 }
 				 )
+              /*  getUserListPage(para).then((res) => {
+                    this.total = res.data.total;
+                    console.log(this.total)
+                    this.users = res.data.users;
+                    this.listLoading = false;
+                    //NProgress.done();
+                });*/
                 console.log(para)
             },
 

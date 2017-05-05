@@ -9,23 +9,22 @@ import Vuex from 'vuex'
 
 import routes from './routes'
 import Mock from './mock'
-import api from './api/api'
-Vue.prototype.$api = api
+/*import api from './api/api'
+/!*Vue.prototype.$api = api*!/*/
 Mock.bootstrap();
 import 'font-awesome/css/font-awesome.min.css'
 
 Vue.use(ElementUI)
 Vue.use(VueRouter)
 Vue.use(Vuex)
-
-//NProgress.configure({ showSpinner: false });
-
 const router = new VueRouter({
   routes
 })
 
 import VueResource from 'vue-resource';
+import Axios from 'axios';
 Vue.use(VueResource);
+Vue.prototype.$axios=Axios
 router.beforeEach((to, from, next) => {
   //NProgress.start();
   if (to.path == '/login') {

@@ -14,7 +14,6 @@
 				</el-form-item>				
 			</el-form>
 		</el-col>
-		
 		<!--列表-->
 		<el-table :data="brands" highlight-current-row v-loading="loading" style="width: 100%;">
 			<el-table-column prop="brand_name" label="品牌名称" sortable>
@@ -26,7 +25,6 @@
 			</template>
 		</el-table-column>
 		</el-table>
-		
 		<!--新增-->	
 		<el-dialog title="新增" v-model="addFormVisible" :close-on-click-modal="false">
 			<el-form :model="addForm" label-width="80px" :rules="addFormRules" ref="addForm">
@@ -38,9 +36,9 @@
                         action="http://up-z2.qiniu.com"
 						type="drag"
                         :on-success="handleSuccess"
+						:multiple="true"
                         :before-upload="beforeUpload"
                         :on-error="handleError"
-                        :show-file-list="true"
                         :data="form">
                     <el-button size="small"  type="primary">点击上传</el-button>
                     <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
@@ -57,7 +55,19 @@
 			<el-form :model="editForm" label-width="80px" :rules="editFormRules" ref="editForm">
 				<el-form-item label="品牌名称" prop="brand_name">
 					<el-input v-model="editForm.brand_name" auto-complete="off"></el-input>
-				</el-form-item>				
+				</el-form-item>
+				<!--<el-upload
+						class="upload-demo"
+						action="http://up-z2.qiniu.com"
+						type="drag"
+						:on-success="handleSuccess"
+						:before-upload="beforeUpload"
+						:on-error="handleError"
+						:show-file-list="true"
+						:data="form">
+					<el-button size="small"  type="primary">点击上传</el-button>
+					<div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+				</el-upload>-->
 			</el-form>
 			<div slot="footer" class="dialog-footer">
 				<el-button @click.native="editFormVisible = false">取消</el-button>
@@ -146,8 +156,8 @@
 				this.$http.get(baseUrl+"brands?start="+ this.start + "&length="+this.length+"&name="+para.brand_name).then(
 				(res) => {			
 					// 处理成功的结果                               
-					this.total   = res.body.total		
-					this.brands  = res.body.data			
+					this.total   = res.body.total
+					this.brands  = res.body.data
 					this.loading = false;
 				},(ere) => {
 				
@@ -177,30 +187,28 @@
 				}
             },
             beforeUpload(file) {
-                let curr = moment().format('YYYYMMDD').toString()
-                let prefix = moment(file.lastModified).format('HHmmss').toString()
-                let suffix = file.name
-                let key = encodeURI(`${curr}/${prefix}_${suffix}`)
-				console.log(key)
-                let vm = this;
-                return new Promise((resolve,reject)=>{
-                    this.$http.get(baseUrl+"qiniutoken?key="+key).then(
-                        (response)=>{
-                            vm.form = {
-                                key,
-                                token:response.body.token
-                            };
+                    let curr = moment().format('YYYYMMDD').toString()
+                    let prefix = moment(file.lastModified).format('HHmmss').toString()
+                    let suffix = file.name
+                    let key = encodeURI(`${curr}/${prefix}_${suffix}`)
+                  return  this.$http.get(baseUrl+"qiniutoken?key="+key).then(response => {
+                   // let bodyText=JSON.parse(response.bodyText);
+                    this.upToken = response.body.token
+                    this.key = key;
+                    this.form = {
+                        key,
+                        token: this.upToken
+                    }
+                    console.log(this.token)
+                })
 
-                        }
-                    )
-                });
+                },
 
-            },
             handleSuccess(response, file, fileList) {
                 let key = response.key;
                 let name = file.name;
-			 this.addForm.image_url=file.name;
-			 console.log(response)
+			 this.addForm.image_url=key;
+			 console.log(this.addForm.image_url)
             },
 
 			//新增
@@ -297,12 +305,19 @@
 		
 	};
 </script>
-<style scoped>
+<style >
 	.el-dialog .el-dialog__body .el-form.el-form-item.is-required .el-form-item__label:before {
 		content: '*';
 		color: #ff4949;
 		margin-right: 3px;
 		display: none;
+	}
+	.el-upload-list__item-status-label{
+		position: absolute;
+		right: 5px;
+		top: 0;
+		line-height: inherit;
+		display: block!important;
 	}
 	.inputCss{
 		width:20;
