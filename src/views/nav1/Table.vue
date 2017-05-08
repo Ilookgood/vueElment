@@ -225,7 +225,7 @@ var baseUrl = 'http://www.test.api/api/';
                     phone: this.phone,
                     label: this.label,
                 };
-             this.$axios.get(baseUrl+"hospitals?start="+ this.start + "&length="+this.length+"&name="+para.name).then(
+             this.$http.get(baseUrl+"hospitals?start="+ this.start + "&length="+this.length+"&name="+para.name).then(
 				 (res) => {
 				 // 处理成功的结果
                    for (let i=0; i<res.body.data.length; i++){

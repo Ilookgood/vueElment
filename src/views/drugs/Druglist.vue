@@ -81,7 +81,18 @@
 				<el-button @click.native="editFormVisible = false">取消</el-button>
 				<el-button type="primary" @click.native="editSubmit" :loading="editLoading">提交</el-button>
 			</div>
-			<div>{{editForm.status}}</div>
+			<el-upload
+					class="upload-demo"
+					action="http://up-z2.qiniu.com"
+					type="drag"
+					:on-success="handleSuccess"
+					:multiple="true"
+					:before-upload="beforeUpload"
+					:on-error="handleError"
+					:data="form">
+				<el-button size="small"  type="primary">点击上传</el-button>
+				<div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+			</el-upload>
 		</el-dialog>
 
 		<!--新增界面-->
@@ -121,6 +132,18 @@
 				<el-form-item label="单位" prop="unit">
 					<el-input type="text" placeholder="片或者盒"  auto-complete="off" v-model="addForm.unit"></el-input>
 				</el-form-item>
+				<el-upload
+						class="upload-demo"
+						action="http://up-z2.qiniu.com"
+						type="drag"
+						:on-success="handleSuccess"
+						:multiple="true"
+						:before-upload="beforeUpload"
+						:on-error="handleError"
+						:data="form">
+					<el-button size="small"  type="primary">点击上传</el-button>
+					<div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+				</el-upload>
 			</el-form>
 			<div slot="footer" class="dialog-footer">
 				<el-button @click.native="addFormVisible = false">取消</el-button>
@@ -140,6 +163,7 @@
 
 import NProgress from 'nprogress'
 import axios from 'axios';
+import moment from 'moment'
 var baseUrl = 'http://www.test.api/api/';
 
 	export default {
@@ -164,6 +188,8 @@ var baseUrl = 'http://www.test.api/api/';
                 length:10,
 				pageSizes:[10,20,50,100],
 				editFormVisible: false,//编辑界面是否显示
+                //图片上传
+                form: {},
 				editLoading: false,
 				editFormRules: {
 					name: [
@@ -179,7 +205,9 @@ var baseUrl = 'http://www.test.api/api/';
                     status: '1',
                     unit: '',
                     cate_id:'',
-                    brand_id:''
+                    brand_id:'',
+                    image_url:""
+
 				},
 
 
@@ -207,7 +235,8 @@ var baseUrl = 'http://www.test.api/api/';
                     status: '1',
                     unit: '',
                     cate_id:'',
-                    brand_id:''
+                    brand_id:'',
+                    image_url:""
 				}
 
 			}
@@ -256,7 +285,40 @@ var baseUrl = 'http://www.test.api/api/';
 				 }
 				 )
             },
+            handleError(err, response, file) {
+                if (err.status === 401) {
+                    this.$message.error('图片上传失败，请求中未附带Token')
+                } else if(err.status === 614)
+                {
+                    this.$message.error('图片已经存在')
+                }else {
+                    this.$message.error(JSON.stringify(err))
+                }
+            },
+            beforeUpload(file) {
+                let curr = moment().format('YYYYMMDD').toString()
+                let prefix = moment(file.lastModified).format('HHmmss').toString()
+                let suffix = file.name
+                let key = encodeURI(`${curr}/${prefix}_${suffix}`)
+                return  this.$http.get(baseUrl+"qiniutoken?key="+key).then(response => {
+                    // let bodyText=JSON.parse(response.bodyText);
+                    this.upToken = response.body.token
+                    this.key = key;
+                    this.form = {
+                        key,
+                        token: this.upToken
+                    }
+                    console.log(this.token)
+                })
 
+            },
+
+            handleSuccess(response, file, fileList) {
+                let key = response.key;
+                let name = file.name;
+                this.addForm.image_url=key;
+                console.log(this.addForm.image_url)
+            },
 			//删除
 			handleDel: function (index, row) {
 				this.$confirm('确认删除该记录吗?', '提示', {

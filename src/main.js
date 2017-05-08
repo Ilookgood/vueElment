@@ -4,7 +4,7 @@ import App from './App'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-default/index.css'
 import VueRouter from 'vue-router'
-import store from './vuex/store'
+import store from './store/store'
 import Vuex from 'vuex'
 
 import routes from './routes'
@@ -27,7 +27,7 @@ Vue.use(VueResource);
 Vue.prototype.$axios=Axios
 router.beforeEach((to, from, next) => {
   //NProgress.start();
-  if (to.path == '/login') {
+    if (to.path == '/login') {
     sessionStorage.removeItem('user');
   }
   let user = JSON.parse(sessionStorage.getItem('user'));

@@ -56,7 +56,7 @@
 				<el-form-item label="品牌名称" prop="brand_name">
 					<el-input v-model="editForm.brand_name" auto-complete="off"></el-input>
 				</el-form-item>
-				<!--<el-upload
+				<el-upload
 						class="upload-demo"
 						action="http://up-z2.qiniu.com"
 						type="drag"
@@ -67,7 +67,7 @@
 						:data="form">
 					<el-button size="small"  type="primary">点击上传</el-button>
 					<div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
-				</el-upload>-->
+				</el-upload>
 			</el-form>
 			<div slot="footer" class="dialog-footer">
 				<el-button @click.native="editFormVisible = false">取消</el-button>
@@ -106,8 +106,6 @@
 				addFormVisible: false,
 				addLoading: false,
                 //图片上传
-                supportWebp: false,   // 是否支持webp
-                bucketHost: '',   // 上传图片的外链域名
                 form: {},
                 addForm:
 				{
