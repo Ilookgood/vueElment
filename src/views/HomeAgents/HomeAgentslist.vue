@@ -85,7 +85,6 @@
             pageIndexChange: function (start) {
                 this.start = start;
                 console.log(this.start)
-
                 this.getBrand();
             },
 
@@ -120,14 +119,15 @@
 			},
             handleEdit: function (index, row) {
 				const user_id=row.id;
-				const start=this.start;
-                this.$router.push(`/Druglicenselist?user_type=1&user_id=${user_id}`)
-
+				let start=this.start;
+				console.log(start)
+                this.$router.push(`/Druglicenselist?user_type=1&user_id=${user_id}&start=${start}`)
             },
 			//删除
             handleDel: function (index, row) {
                 const user_id=row.id;
-                this.$router.push(`/Deauthorize?user_type=1&user_id=${user_id}`)
+                let start=this.start;
+                this.$router.push(`/Deauthorize?user_type=1&user_id=${user_id}&start=${start}`)
             },
 		},
 		

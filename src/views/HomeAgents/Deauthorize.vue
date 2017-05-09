@@ -151,10 +151,9 @@
                     name: this.filters.name,
                     cate_id:this.filters.cate_id,
                     brand_id:this.filters.brand_id
-                };
+                };user_id
                 let user_id= this.$route.query.user_id;
-                console.log(user_id)
-                this.$http.get(baseUrl+"drugspermission?user_id="+user_id+"&user_type="+1 +"&start="+this.start +"&length="+this.length+"&name="+para.name).then(
+                this.$http.get(baseUrl+"drugspermission/"+user_id+"?"+"&user_type="+1+"&start="+this.start +"&length="+this.length+"&name="+para.name).then(
                     (res) => {
                         // 处理成功的结果
                         for (let i=0; i<res.body.data.length; i++){
@@ -200,9 +199,6 @@
             Cancel(){
                 let url = baseUrl+'drugspermission';
                 let user_id = this.$route.query.user_id;
-				/*console.log(this.sels)
-				let id={id:this.sels}*/
-
                 this.$http.put(url+'/'+user_id,{id:this.sels}).then(
                     (res) => {
                         this.addLoading = true;
