@@ -28,13 +28,10 @@
 			</el-table-column>
 			<el-table-column prop="phone" label="电话号码" sortable>
 			</el-table-column>
-			<!--<el-table-column v-for="itme in hoem" label="指派" sortable>
-				<span scope="scope">{{ itme.text }}</span>
-			</el-table-column>-->
 			<el-table-column label="指派" width="150px">
 			&lt;!&ndash;<template scope="scope">
-				<div  size="small" @click="handleEdit(scope.$index, scope.row)">药品授权</div>
-				<div size="small" @click="handleDel(scope.$index, scope.row)">取消授权</div>
+				<div  size="small" class="Anrik" @click="handleEdit(scope.$index, scope.row)">药品授权</div>
+				<div size="small" class="Anrik" @click="handleDel(scope.$index, scope.row)">取消授权</div>
 			</template>&ndash;&gt;
 		</el-table-column>
 		</el-table>
@@ -87,6 +84,8 @@
             },
             pageIndexChange: function (start) {
                 this.start = start;
+                console.log(this.start)
+
                 this.getBrand();
             },
 
@@ -121,33 +120,14 @@
 			},
             handleEdit: function (index, row) {
 				const user_id=row.id;
+				const start=this.start;
                 this.$router.push(`/Druglicenselist?user_type=1&user_id=${user_id}`)
 
             },
 			//删除
             handleDel: function (index, row) {
-                this.$confirm('确认删除该记录吗?', '提示', {
-                    type: 'warning'
-                }).then(() => {
-                    let para = { id: row.id };				
-                    let url=baseUrl+'brands'
-                    this.$http.delete(url+'/'+para.id).then(
-                        (res) => {
-                            // 处理成功的结果
-                          
-							this.getBrand();
-                            this.$message({
-                                message: '删除成功',
-                                type: 'success'
-                            });			
-                        },(ere) => {
-						
-                        }
-                    )
-
-                }).catch(() => {
-
-                });
+                const user_id=row.id;
+                this.$router.push(`/Deauthorize?user_type=1&user_id=${user_id}`)
             },
 		},
 		
@@ -166,5 +146,11 @@
 	}
 	.inputCss{
 		width:20;
+	}
+	.Anrik{
+          cursor: pointer;
+	}
+	.Anrik:hover{
+		color: red;
 	}
 </style>

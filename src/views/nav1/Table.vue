@@ -27,7 +27,7 @@
 			</el-table-column>
 			<el-table-column prop="level" label="医院等级" width="120" sortable>
 			</el-table-column>
-			<el-table-column prop="level" label="电话" width="120" sortable>
+			<el-table-column prop="number" label="电话" width="120" sortable>
 			</el-table-column>
 			<el-table-column prop="address" label="医院地址" min-width="180" sortable>
 			</el-table-column>
@@ -43,7 +43,7 @@
 		<el-dialog title="编辑" v-model="editFormVisible" :close-on-click-modal="false">
 			<el-form :model="editForm" label-width="80px" :rules="editFormRules" ref="editForm">
 				<el-form-item label="医院名称" prop="name">
-					<el-input v-model="editForm.name" auto-complete="off"></el-input>
+					<el-input type="text" v-model="editForm.name" auto-complete="off" placeholder="输入医院名称"  ></el-input>
 				</el-form-item>
 				<el-form-item label="是否可用" >
 					<el-radio class="radio" v-model="editForm.is_enable" label="是" >是</el-radio>
@@ -53,13 +53,14 @@
 					<el-select v-model="editForm.level" clearable placeholder="请选择">
 					<el-option
 							v-for="item in options"
+							:key="item.value"
 							:label="item.label"
 							:value="item.value">
 					</el-option>
 					</el-select>
 				</el-form-item>
 				<el-form-item label="电话号码"  prop="phone">
-					<el-input type="number" placeholder="输入电话号码"  auto-complete="off" v-model="editForm.phone"></el-input>
+					<el-input v-model="editForm.phone" type="tel" placeholder="输入电话号码"  auto-complete="off" ></el-input>
 				</el-form-item>
 				<el-form-item label="医院地址" prop="address" >
 					<el-input type="textarea" v-model="editForm.address"  auto-complete="off"></el-input>
@@ -85,6 +86,7 @@
 					<el-select v-model="addForm.level" clearable placeholder="请选择">
 						<el-option
 								v-for="item in options"
+								:key="item.value"
 								:label="item.label"
 								:value="item.value">
 						</el-option>
@@ -112,11 +114,7 @@
 		<el-pagination v-bind:current-Page="start" v-bind:page-size="length" :total="total"
 					   layout="total,sizes,prev,pager,next,jumper" v-bind:page-sizes="pageSizes"
 					   v-on:size-change="sizeChange" v-on:current-change="pageIndexChange">
-
 		</el-pagination>
-
-
-
 	</section>
 </template>
 
@@ -182,13 +180,13 @@ var baseUrl = 'http://www.test.api/api/';
 						{ required: true, message: '请输入姓名', trigger: 'blur' }
 					],
                     level: [
-                        { required: true, message: '', trigger: 'blur' }
+                        { required: true, message: '请选择医院等级', trigger: 'blur' }
                     ],
                     phone: [
-                        { required: true, message: '', trigger: 'blur' }
+                        { required: true, message: '请输入电话号码', trigger: 'blur' }
                     ],
                     address: [
-                        { required: true, message: '', trigger: 'blur' }
+                        { required: true, message: '请输入医院地址', trigger: 'blur' }
                     ]
 				},
 				//新增界面数据
@@ -209,8 +207,8 @@ var baseUrl = 'http://www.test.api/api/';
                     this.getUsers();
                 },
                 pageIndexChange: function (start) {
-                    console.log(this.start)
                     this.start = start;
+                    console.log(this.start)
                     this.getUsers();
                 },
 
@@ -225,6 +223,7 @@ var baseUrl = 'http://www.test.api/api/';
                     phone: this.phone,
                     label: this.label,
                 };
+
              this.$http.get(baseUrl+"hospitals?start="+ this.start + "&length="+this.length+"&name="+para.name).then(
 				 (res) => {
 				 // 处理成功的结果
@@ -393,7 +392,7 @@ var baseUrl = 'http://www.test.api/api/';
 		display: none;
 	}
 	.inputCss{
-		width:20;
+		width:20px;
 	}
     .el-form .el-form-item.is-required .el-form-item__label:before {
         content: '*';

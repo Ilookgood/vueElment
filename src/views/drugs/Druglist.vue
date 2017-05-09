@@ -59,6 +59,7 @@
 					<el-select v-model="editForm.cate_id" clearable placeholder="请选择">
 						<el-option
 								v-for="item in options"
+								:key="item.value"
 								:label="item.label"
 								:value="item.value">
 						</el-option>
@@ -68,6 +69,7 @@
 					<el-select v-model="editForm.brand_id" clearable placeholder="请选择">
 						<el-option
 								v-for="item in option"
+								:key="item.value"
 								:label="item.label"
 								:value="item.value">
 						</el-option>
@@ -115,6 +117,7 @@
 					<el-select v-model="addForm.cate_id" clearable placeholder="请选择">
 						<el-option
 								v-for="item in options"
+								:key="item.value"
 								:label="item.label"
 								:value="item.value">
 						</el-option>
@@ -124,6 +127,7 @@
 					<el-select v-model="addForm.brand_id" clearable placeholder="请选择">
 						<el-option
 								v-for="item in option"
+								:key="item.value"
 								:label="item.label"
 								:value="item.value">
 						</el-option>

@@ -7,6 +7,7 @@
 					<el-select v-model="filters.cate_id" clearable placeholder="请选择">
 						<el-option
 								v-for="item in options"
+								:key="item.value"
 								:label="item.label"
 								:value="item.value">
 						</el-option>
@@ -16,6 +17,7 @@
 					<el-select v-model="filters.brand_id" clearable placeholder="请选择">
 						<el-option
 								v-for="item in option"
+								:key="item.value"
 								:label="item.label"
 								:value="item.value">
 						</el-option>
@@ -33,8 +35,6 @@
 		<el-table :data="users" highlight-current-row v-loading="listLoading" @selection-change="selsChange" style="width: 100%;">
 			<el-table-column type="selection" width="55">
 			</el-table-column>
-			<el-table-column type="index" width="60">
-			</el-table-column>
 			<el-table-column prop="name" label="药品名称" width="120"  sortable>
 			</el-table-column>
 			<el-table-column prop="sn_code"   label="条形码" width="120" sortable>
@@ -44,10 +44,6 @@
 			<el-table-column prop="status" label="药品状态" width="120" sortable>
 			</el-table-column>
 			<el-table-column prop="unit" label="单位" min-width="120" sortable>
-			</el-table-column>
-			<el-table-column prop="cateName" label="药品分类" min-width="120" sortable>
-			</el-table-column>
-			<el-table-column prop="branName" label="药品品牌" min-width="120" sortable>
 			</el-table-column>
 		</el-table>
 		<el-pagination v-bind:current-Page="start" v-bind:page-size="length" :total="total"
@@ -84,8 +80,6 @@
                 batch_number:'',
                 status: '1',
                 unit:'',
-                cateName: '',
-                branName: '',
                 users: [],
                 total: 0,
                 sels: [],

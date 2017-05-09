@@ -7,6 +7,7 @@ import Form from './views/nav1/Form.vue'
 import user from './views/nav1/user.vue'
 import brands from './views/drugs/brands.vue'
 import Druglicenselist from './views/HomeAgents/Druglicenselist.vue'
+import Deauthorize from './views/HomeAgents/Deauthorize.vue'
 import drugscate from './views/drugs/drugsCate.vue'
 import HomeAgentslist from './views/HomeAgents/HomeAgentslist.vue'
 import Druglist from './views/drugs/Druglist.vue'
@@ -34,6 +35,11 @@ let routes = [
     {
         path: '/Druglicenselist',
         component: Druglicenselist,
+        hidden: true
+    },
+    {
+        path: '/Deauthorize',
+        component: Deauthorize,
         hidden: true
     },
     {

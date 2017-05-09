@@ -7,6 +7,7 @@
 					<el-select v-model="filters.cate_id" clearable placeholder="请选择">
 						<el-option
 								v-for="item in options"
+								:key="item.value"
 								:label="item.label"
 								:value="item.value">
 						</el-option>
@@ -16,6 +17,7 @@
 					<el-select v-model="filters.brand_id" clearable placeholder="请选择">
 						<el-option
 								v-for="item in option"
+								:key="item.value"
 								:label="item.label"
 								:value="item.value">
 						</el-option>
@@ -33,8 +35,8 @@
 		<el-table :data="users" highlight-current-row v-loading="listLoading" @selection-change="selsChange" style="width: 100%;">
 			<el-table-column type="selection" width="55">
 			</el-table-column>
-			<el-table-column type="index" width="60">
-			</el-table-column>
+			<!--<el-table-column type="index" width="60">
+			</el-table-column>-->
 			<el-table-column prop="name" label="药品名称" width="120"  sortable>
 			</el-table-column>
 			<el-table-column prop="sn_code"   label="条形码" width="120" sortable>
@@ -45,10 +47,6 @@
 			</el-table-column>
 			<el-table-column prop="unit" label="单位" min-width="120" sortable>
 			</el-table-column>
-			<el-table-column prop="cateName" label="药品分类" min-width="120" sortable>
-			</el-table-column>
-			<el-table-column prop="branName" label="药品品牌" min-width="120" sortable>
-			</el-table-column>
 		</el-table>
 		<el-pagination v-bind:current-Page="start" v-bind:page-size="length" :total="total"
 					   layout="total,sizes,prev,pager,next,jumper" v-bind:page-sizes="pageSizes"
@@ -57,14 +55,12 @@
 		</el-pagination>
 		<div class="block">
 			<span class="wrapper">
-			<el-button type="success"  @click="assign">指派</el-button>
+			<el-button type="danger"  @click="Cancel">取消指派</el-button>
 		  </span>
 		</div>
 	</section>
 </template>
-
 <script>
-
     import NProgress from 'nprogress'
     import axios from 'axios';
     import moment from 'moment'
@@ -77,7 +73,6 @@
                     name: '',
                     cate_id:'',
                     brand_id:''
-
                 },
                 options:[],
                 option:[],
@@ -85,8 +80,6 @@
                 batch_number:'',
                 status: '1',
                 unit:'',
-                cateName: '',
-                branName: '',
                 users: [],
                 total: 0,
                 sels: [],
@@ -114,7 +107,21 @@
                 this.start = start;
                 this.getUsers();
             },
+            Cancel(){
+                this.$http.put(baseUrl+"drugcate?").then(
+                    (res) => {
+                        this.options=[];
+                        for (let i=0; i<res.body.data.length; i++){
+                            this.options.push({
+                                value: res.body.data[i].id,
+                                label: res.body.data[i].name,
+                            })
+                        }
+                    }
+                )
 
+
+			},
             //获取用户列表
             getUsers() {
                 this.$http.get(baseUrl+"drugcate?").then(
@@ -145,10 +152,9 @@
                     cate_id:this.filters.cate_id,
                     brand_id:this.filters.brand_id
                 };
-                console.log(para.cate_id)
-                console.log(para.brand_id)
                 let user_id= this.$route.query.user_id;
-                this.$http.get(baseUrl+"drugspermission?user_type="+ 1 +"&user_id="+user_id +"&start="+this.start +"&length="+this.length+"&name="+para.name).then(
+                console.log(user_id)
+                this.$http.get(baseUrl+"drugspermission?user_id="+user_id+"&user_type="+1 +"&start="+this.start +"&length="+this.length+"&name="+para.name).then(
                     (res) => {
                         // 处理成功的结果
                         for (let i=0; i<res.body.data.length; i++){
@@ -171,9 +177,33 @@
             },
 
 
-            assign(){
+/*            let jsonli = {'name':para.name,'is_enable':para.is_enable,'level':para.level,'phone':para.phone,'address':para.address}
+            let url = baseUrl+'hospitals';
+    this.$http.put(url+'/'+para.id,jsonli).then(
+        (res) => {
+            this.addLoading = true;
+            this.$message({
+                message: '提交成功',
+                type: 'success',
+            });
+            this.editFormVisible = false;
+            this.getUsers();
+			/!* this.$refs['addForm'].resetFields();*!/
+
+        },(ere) => {
+            this.$message({
+                message: '请检查提交内容是否完整',
+                type: 'error',
+            });
+        }
+    )*/
+            Cancel(){
                 let url = baseUrl+'drugspermission';
-                this.$http.post(url,this.sels).then(
+                let user_id = this.$route.query.user_id;
+				/*console.log(this.sels)
+				let id={id:this.sels}*/
+
+                this.$http.put(url+'/'+user_id,{id:this.sels}).then(
                     (res) => {
                         this.addLoading = true;
                         this.$message({
@@ -193,16 +223,8 @@
 			},
             selsChange: function(sels) {
             this.sels=[];
-                let user_id= this.$route.query.user_id;
-                let user_type= this.$route.query.user_type;
 				for(var i=0;i<sels.length;i++){
-                    this.sels.push({
-                        drug_id:sels[i].id,
-						user_id:user_id,
-                        user_type:user_type
-					}
-                    )
-
+				    this.sels.push(sels[i].id)
 				}
             }
         },
