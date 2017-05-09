@@ -23,72 +23,24 @@
 			</el-table-column>
 			<el-table-column prop="real_name" label="真实姓名" sortable>
 			</el-table-column>
+
 			<el-table-column prop="id_number" label="身份证号" sortable>
 			</el-table-column>
 			<el-table-column prop="phone" label="电话号码" sortable>
 			</el-table-column>
-			<!--<el-table-column label="操作" width="150px">
+			<!--<el-table-column v-for="itme in hoem" label="指派" sortable>
+				<span scope="scope">{{ itme.text }}</span>
+			</el-table-column>-->
+			<el-table-column label="指派" width="150px">
 			&lt;!&ndash;<template scope="scope">
-				<el-button size="small" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-				<el-button type="danger" size="small" @click="handleDel(scope.$index, scope.row)">删除</el-button>
+				<div  size="small" @click="handleEdit(scope.$index, scope.row)">药品授权</div>
+				<div size="small" @click="handleDel(scope.$index, scope.row)">取消授权</div>
 			</template>&ndash;&gt;
-		</el-table-column>-->
+		</el-table-column>
 		</el-table>
-		
-		<!--新增-->	
-<!--		<el-dialog title="新增" v-model="addFormVisible" :close-on-click-modal="false">
-			<el-form :model="addForm" label-width="80px" :rules="addFormRules" ref="addForm">
-				<el-form-item label="品牌名称" prop="brand_name">
-					<el-input v-model="addForm.brand_name" auto-complete="off"></el-input>
-				</el-form-item>
-              &lt;!&ndash; <el-upload
-                        class="upload-demo"
-                        action="http://upload.qiniu.com/"
-                        :on-success="handleSuccess"
-                        :on-error="handleError"
-                        :show-file-list="true"
-                        :data="form">
-                    <el-button size="small" type="primary">点击上传</el-button>
-                    <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
-                </el-upload>&ndash;&gt;
 
-				&lt;!&ndash;	<el-upload
-							action="http://upload.qiniu.com/"
-							type="drag"
-							:on-success="handleSuccess"
-							:on-error="handleError"
-							:data="form"
-					>
-						<i class="el-icon-upload"></i>
-					</el-upload>&ndash;&gt;
-
-              <form method="post" action="http://upload.qiniu.com/"
-                      enctype="multipart/form-data">
-                    <input name="key" type="hidden" value="12345678">
-                    <input name="token" type="hidden" value="MhWG-QsCNhHHpD9jKfdh97OL3vZ-IMsVawjXlpHh:mBV1YiP-nmG-XxD30stqrSQGmUA=:eyJzY29wZSI6ImxpcXVueCIsImRlYWRsaW5lIjoxNDkzNzI2MjQzLCJ1cEhvc3RzIjpbImh0dHA6XC9cL3VwLXoyLnFpbml1LmNvbSIsImh0dHA6XC9cL3VwbG9hZC16Mi5xaW5pdS5jb20iLCItSCB1cC16Mi5xaW5pdS5jb20gaHR0cDpcL1wvMTgzLjYwLjIxNC4xOTgiXX0=">
-                    <input name="file" type="file" />
-              </form>
-
-			</el-form>
-			<div slot="footer" class="dialog-footer">
-				<el-button @click.native="addFormVisible = false">取消</el-button>
-				<el-button type="primary" @click.native="addSubmit" :loading="addLoading">提交</el-button>
-			</div>
-		</el-dialog>-->
-		
 		<!--编辑--->
-	<!--	<el-dialog title="编辑" v-model="editFormVisible" :close-on-click-modal="false">
-			<el-form :model="editForm" label-width="80px" :rules="editFormRules" ref="editForm">
-				<el-form-item label="品牌名称" prop="brand_name">
-					<el-input v-model="editForm.brand_name" auto-complete="off"></el-input>
-				</el-form-item>				
-			</el-form>
-			<div slot="footer" class="dialog-footer">
-				<el-button @click.native="editFormVisible = false">取消</el-button>
-				<el-button type="primary" @click.native="editSubmit" :loading="editLoading">提交</el-button>
-			</div>
-		</el-dialog>-->
-		
+
 		<!--工具条-->
 		<el-pagination v-bind:current-Page="start" v-bind:page-size="length" :total="total"
 					   layout="total,sizes,prev,pager,next,jumper" v-bind:page-sizes="pageSizes"
@@ -167,74 +119,16 @@
 				}
               )
 			},
-
-			//新增
-	/*		addSubmit: function () {
-                this.$refs.addForm.validate((valid) => {					    
-                    if (valid) {
-                        this.$confirm('确认提交吗？', '提示', {}).then(() => {
-							this.addLoading = false;
-
-                            let para = Object.assign({}, this.addForm);
-                            let jsonli = {'brand_name':para.brand_name,'image_url':para.image_url}							
-                            this.$http.post(baseUrl+"brands",jsonli,{emulateJSON: true}).then(
-                                (res) => {
-                                    // 处理成功的结果
-                                    this.getBrand();
-                                    this.$message({
-                                        message: '提交成功',
-                                        type: 'success',
-                                    });
-									this.addLoading = false;									
-                                    this.addFormVisible = false;                              
-                                    
-                                },(ere)=>{
-																	
-                                }
-                            )
-                        });
-                    }
-                });
-            },
-			*/
-/*			//显示编辑界面
             handleEdit: function (index, row) {
-                this.editFormVisible = true;
-                this.editForm = Object.assign({}, row);
-            },*/
-			
-			//编辑
-            editSubmit: function () {
-                this.$refs.editForm.validate((valid) => {
-                    if (valid) {
-                        this.$confirm('确认提交吗？', '提示', {}).then(() => {
-                            this.editLoading = true;
-                            let para = Object.assign({}, this.editForm);
-                            let jsonli = {'brand_name':para.brand_name,'image_url':para.image_url,}               
-                            this.$http.put(baseUrl+'brands/'+para.id,jsonli).then(
-                                (res) => {
-                                    // 处理成功的结果
-                                    this.editLoading = false;
-                                    this.$message({
-                                        message: '提交成功',
-                                        type: 'success',
-                                    });
-                                    this.editFormVisible = false;
-                                    this.getBrand();
-                                },(ere) => {
-                                    console.log(ere)
-                                }
-                            )
-                        });
-                    }
-                });
-            },			
+				const user_id=row.id;
+                this.$router.push(`/Druglicenselist?user_type=1&user_id=${user_id}`)
+
+            },
 			//删除
             handleDel: function (index, row) {
                 this.$confirm('确认删除该记录吗?', '提示', {
                     type: 'warning'
                 }).then(() => {
-                          
                     let para = { id: row.id };				
                     let url=baseUrl+'brands'
                     this.$http.delete(url+'/'+para.id).then(

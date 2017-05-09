@@ -132,6 +132,7 @@
 				<el-form-item label="单位" prop="unit">
 					<el-input type="text" placeholder="片或者盒"  auto-complete="off" v-model="addForm.unit"></el-input>
 				</el-form-item>
+				<el-form-item label="" prop="image_url">
 				<el-upload
 						class="upload-demo"
 						action="http://up-z2.qiniu.com"
@@ -144,6 +145,7 @@
 					<el-button size="small"  type="primary">点击上传</el-button>
 					<div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
 				</el-upload>
+				</el-form-item>
 			</el-form>
 			<div slot="footer" class="dialog-footer">
 				<el-button @click.native="addFormVisible = false">取消</el-button>
@@ -237,6 +239,7 @@ var baseUrl = 'http://www.test.api/api/';
                     cate_id:'',
                     brand_id:'',
                     image_url:""
+
 				}
 
 			}
@@ -383,7 +386,8 @@ var baseUrl = 'http://www.test.api/api/';
                     status: '1',
                     unit: '',
 					cate_id:'',
-					brand_id:''
+					brand_id:'',
+                    image_url:""
 				};
                 this.$http.get(baseUrl+"drugcate?").then(
                     (res) => {
@@ -421,9 +425,7 @@ var baseUrl = 'http://www.test.api/api/';
                                 this.editForm.status="2"
                             }
 							let para = Object.assign({}, this.editForm);
-							console.log(para.cate_id)
-                            console.log(para.brand_id)
-                        let jsonli = {'name':para.name,'sn_code':para.sn_code,'batch_number':para.batch_number,'status':para.status,'unit':para.unit,'cate_id':para.cate_id,'brand_id':para.brand_id}
+                        let jsonli = {'name':para.name,'sn_code':para.sn_code,'batch_number':para.batch_number,'status':para.status,'unit':para.unit,'cate_id':para.cate_id,'brand_id':para.brand_id,image_url:para.image_url}
 						let url = baseUrl+'drugs';
                            this.$http.put(url+'/'+para.id,jsonli).then(
                                 (res) => {
@@ -452,7 +454,7 @@ var baseUrl = 'http://www.test.api/api/';
 						this.$confirm('确认提交吗？', '提示', {}).then(() => {
 							this.addLoading = false;
 							let para = Object.assign({}, this.addForm);
-                            this.$http.post(baseUrl+"drugs",{'name':para.name,'sn_code':para.sn_code,'batch_number':para.batch_number,'status':para.status,'unit':para.unit,'cate_id':para.cate_id,'brand_id':para.brand_id},{emulateJSON: true}).then(
+                            this.$http.post(baseUrl+"drugs",{'name':para.name,'sn_code':para.sn_code,'batch_number':para.batch_number,'status':para.status,'unit':para.unit,'cate_id':para.cate_id,'brand_id':para.brand_id,'image_url':para.image_url},{emulateJSON: true}).then(
                                 (res) => {
                                     // 处理成功的结果
                                     this.addLoading = false;

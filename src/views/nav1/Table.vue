@@ -244,14 +244,6 @@ var baseUrl = 'http://www.test.api/api/';
 					 console.log(ere)
 				 }
 				 )
-              /*  getUserListPage(para).then((res) => {
-                    this.total = res.data.total;
-                    console.log(this.total)
-                    this.users = res.data.users;
-                    this.listLoading = false;
-                    //NProgress.done();
-                });*/
-                console.log(para)
             },
 
 			//删除

@@ -31,6 +31,7 @@
 				<el-form-item label="品牌名称" prop="brand_name">
 					<el-input v-model="addForm.brand_name" auto-complete="off"></el-input>
 				</el-form-item>
+				<el-form-item label="上传图片" prop="image_url">
               <el-upload
                         class="upload-demo"
                         action="http://up-z2.qiniu.com"
@@ -43,6 +44,7 @@
                     <el-button size="small"  type="primary">点击上传</el-button>
                     <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
                 </el-upload>
+				</el-form-item>
 			</el-form>
 			<div slot="footer" class="dialog-footer">
 				<el-button @click.native="addFormVisible = false">取消</el-button>
@@ -56,6 +58,7 @@
 				<el-form-item label="品牌名称" prop="brand_name">
 					<el-input v-model="editForm.brand_name" auto-complete="off"></el-input>
 				</el-form-item>
+				<el-form-item label="上传图片" prop="image_url">
 				<el-upload
 						class="upload-demo"
 						action="http://up-z2.qiniu.com"
@@ -68,6 +71,7 @@
 					<el-button size="small"  type="primary">点击上传</el-button>
 					<div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
 				</el-upload>
+				</el-form-item>
 			</el-form>
 			<div slot="footer" class="dialog-footer">
 				<el-button @click.native="editFormVisible = false">取消</el-button>
@@ -187,8 +191,10 @@
             beforeUpload(file) {
                     let curr = moment().format('YYYYMMDD').toString()
                     let prefix = moment(file.lastModified).format('HHmmss').toString()
-                    let suffix = file.name
-                    let key = encodeURI(`${curr}/${prefix}_${suffix}`)
+				let index1=file.name.lastIndexOf(".")
+				let index2=file.name.length;
+				let suffix1=file.name.substring(index1,index2);
+                    let key = encodeURI(`${curr}/${prefix}_${suffix1}`)
                   return  this.$http.get(baseUrl+"qiniutoken?key="+key).then(response => {
                    // let bodyText=JSON.parse(response.bodyText);
                     this.upToken = response.body.token
@@ -197,7 +203,6 @@
                         key,
                         token: this.upToken
                     }
-                    console.log(this.token)
                 })
 
                 },

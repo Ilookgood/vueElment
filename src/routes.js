@@ -6,6 +6,7 @@ import Table from './views/nav1/Table.vue'
 import Form from './views/nav1/Form.vue'
 import user from './views/nav1/user.vue'
 import brands from './views/drugs/brands.vue'
+import Druglicenselist from './views/HomeAgents/Druglicenselist.vue'
 import drugscate from './views/drugs/drugsCate.vue'
 import HomeAgentslist from './views/HomeAgents/HomeAgentslist.vue'
 import Druglist from './views/drugs/Druglist.vue'
@@ -28,6 +29,11 @@ let routes = [
         path: '/404',
         component: NotFound,
         name: '',
+        hidden: true
+    },
+    {
+        path: '/Druglicenselist',
+        component: Druglicenselist,
         hidden: true
     },
     {

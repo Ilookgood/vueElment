@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import Axios from 'axios'
-import api from '../../fetch/api'
 Vue.prototype.$axios=Axios
 const  state={
     tableList:[],
