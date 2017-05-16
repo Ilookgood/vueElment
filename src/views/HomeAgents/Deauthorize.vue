@@ -51,21 +51,19 @@
 		<el-pagination v-bind:current-Page="start" v-bind:page-size="length" :total="total"
 					   layout="total,sizes,prev,pager,next,jumper" v-bind:page-sizes="pageSizes"
 					   v-on:size-change="sizeChange" v-on:current-change="pageIndexChange">
-
 		</el-pagination>
 		<div class="block">
 			<span class="wrapper">
 			<el-button type="danger"  @click="Cancel">取消指派</el-button>
+			<el-button type="info"  @click="Returns">返回</el-button>
 		  </span>
 		</div>
 	</section>
 </template>
 <script>
     import NProgress from 'nprogress'
-    import axios from 'axios';
-    import moment from 'moment'
     var baseUrl = 'http://www.test.api/api/';
-
+    import {DrugRequest,Designate,DrugCateCompile,drugsCateRequest,BrandsRequest} from '../../fetch/api';
     export default {
         data() {
             return {
@@ -97,6 +95,9 @@
             }
         },
         methods: {
+            Returns(){
+                this.$router.back(-1)
+			},
             sizeChange: function (length) {
                 this.length = length;
                 console.log(this.length)
@@ -119,12 +120,30 @@
                         }
                     }
                 )
-
-
 			},
             //获取用户列表
             getUsers() {
-                this.$http.get(baseUrl+"drugcate?").then(
+                BrandsRequest().then((res) => {
+                    this.options=[];
+                    for (let i=0; i<res.data.data.length; i++){
+                        this.options.push({
+                            value: res.data.data[i].id,
+                            label: res.data.data[i].name,
+                        })
+                    }
+
+                });
+                drugsCateRequest().then((res) => {
+                    this.option=[];
+                    for (let i=0; i<res.data.data.length; i++){
+                        this.option.push({
+                            value: res.data.data[i].id,
+                            label: res.data.data[i].brand_name,
+
+                        })
+                    }
+                });
+           /*     this.$http.get(baseUrl+"drugcate?").then(
                     (res) => {
                         this.options=[];
                         for (let i=0; i<res.body.data.length; i++){
@@ -146,14 +165,29 @@
                         }
 
                     }
-                )
+                )*/
                 let para = {
                     name: this.filters.name,
+                    start:this.start,
+                    length:this.length,
                     cate_id:this.filters.cate_id,
-                    brand_id:this.filters.brand_id
-                };user_id
-                let user_id= this.$route.query.user_id;
-                this.$http.get(baseUrl+"drugspermission/"+user_id+"?"+"&user_type="+1+"&start="+this.start +"&length="+this.length+"&name="+para.name).then(
+                    brand_id:this.filters.brand_id,
+                    user_id: this.$route.query.user_id,
+                    user_type:1,
+                };
+                DrugRequest(para).then((res) => {
+                    for (let i=0; i<res.data.data.length; i++){
+                        if(res.data.data[i].status==1){
+                            res.data.data[i].status='上架'
+                        }else {
+                            res.data.data[i].status='下架'
+                        }
+                    }
+                    this.total = res.data.total;
+                    this.users = res.data.data;
+                    this.listLoading = false;
+                }).catch((err) => {console.log(err)})
+               /* this.$http.get(baseUrl+"drugspermission/"+user_id+"?"+"&user_type="+1+"&start="+this.start +"&length="+this.length+"&name="+para.name).then(
                     (res) => {
                         // 处理成功的结果
                         for (let i=0; i<res.body.data.length; i++){
@@ -163,15 +197,15 @@
                                 res.body.data[i].status='下架'
                             }
                         }
-                        this.total = res.body.total
-                        this.users = res.body.data
+                        this.total = res.body.total;
+                        this.users = res.body.data;
                         this.listLoading = false
 
                     }, (ere) => {
                         // 处理失败的结果
                         console.log(ere)
                     }
-                )
+                )*/
 
             },
 
@@ -197,8 +231,25 @@
         }
     )*/
             Cancel(){
-                let url = baseUrl+'drugspermission';
-                let user_id = this.$route.query.user_id;
+                let user_id=this.$route.query.user_id;
+                console.log(user_id)
+                let paral = {user_id,'id':this.sels}
+                DrugCateCompile(paral).then(data => {
+                    this.addLoading = false;
+                    this.$message({
+                        message: '提交成功',
+                        type: 'success',
+                    });
+                    this.editFormVisible = false;
+                    this.getUsers();
+                },(error=>{
+                    this.$message({
+                        message: '请检查提交内容是否完整',
+                        type: 'error',
+                    });
+
+                }))
+                /*let user_id = this.$route.query.user_id;
                 this.$http.put(url+'/'+user_id,{id:this.sels}).then(
                     (res) => {
                         this.addLoading = true;
@@ -215,7 +266,7 @@
                             type: 'error',
                         });
                     }
-                )
+                )*/
 			},
             selsChange: function(sels) {
             this.sels=[];

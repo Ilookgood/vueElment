@@ -36,9 +36,7 @@
 	</section>
 </template>
 <script>
-    import axios from 'axios';
-	var baseUrl = 'http://www.test.api/api/';	
-	
+    import {ThedoctorRequest} from '../../fetch/api';
 	export default {
 		data() {
 			return {
@@ -71,25 +69,14 @@
 			getBrand: function () {
 				let para = {
                     username: this.filters.username,
+                    start:this.start,
+					length:this.length
 				};
-	         	this.loading = true;
-				this.$http.get(baseUrl+"doctor?start="+ this.start + "&length="+this.length).then(
-				(res) => {			
-					// 处理成功的结果
-                    for (let i=0; i<res.body.data.length; i++){
-                        if(res.body.data[i].status==1){
-                            res.body.data[i].status='可用'
-                        }else {
-                            res.body.data[i].status='不可用'
-                        }
-                    }
-					this.total   = res.body.total;
-					this.brands  = res.body.data;
-					this.loading = false;
-				},(ere) => {
-				
-				}
-              )
+                ThedoctorRequest(para).then((res) => {
+                    this.total = res.data.total;
+                    this.brands = res.data.data;
+                    this.loading = false;
+                }).catch((err) => {console.log(err)})
 			}
 
 		},

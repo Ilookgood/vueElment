@@ -17,19 +17,24 @@
 
 		<!--列表-->
 		<el-table :data="users" highlight-current-row v-loading="listLoading" @selection-change="selsChange" style="width: 100%;">
-			<!--<el-table-column type="selection" width="55">
+			<el-table-column  label="订单号" width="120"  sortable>
+			     <template scope="scope">
+					 <el-button size="small" type="text" @click="handleEdit(scope.$index, scope.row)">{{scope.row.order_sn}}</el-button>
+				 </template>
 			</el-table-column>
-			<el-table-column type="index" width="60">
-			</el-table-column>-->
-			<el-table-column prop="name" label="医院名称" width="120"  sortable>
+
+			<el-table-column prop="status"   label="订单状态" width="120" sortable>
 			</el-table-column>
-			<el-table-column prop="is_enable"   label="是否可用" width="120" sortable>
+			<el-table-column prop="order_amount" label="订单金额" width="120" sortable>
 			</el-table-column>
-			<el-table-column prop="level" label="医院等级" width="120" sortable>
+			<el-table-column prop="create_time" label="下单时间" width="180" sortable>
 			</el-table-column>
-			<el-table-column prop="number" label="电话" width="120" sortable>
+			<el-table-column  label="患者名称" width="120" sortable>
+				<template scope="scope">
+					<el-button size="small" type="text" @click="handle(scope.$index, scope.row)">{{scope.row.patiens_name}}</el-button>
+				</template>
 			</el-table-column>
-			<el-table-column prop="address" label="医院地址" min-width="180" sortable>
+			<el-table-column prop="patiens_phone" label="患者电话"  sortable>
 			</el-table-column>
 			<el-table-column label="操作" width="150">
 				<template scope="scope">
@@ -105,12 +110,6 @@
 			</div>
 		</el-dialog>
 
-		<!--工具条-->
-		<!--<el-col :span="24" class="toolbar">
-		&lt;!&ndash;	<el-button type="danger" @click="batchRemove" :disabled="this.sels.length===0">批量删除</el-button>&ndash;&gt;
-			<el-pagination layout="prev, pager, next" @current-change="handleCurrentChange" :page-size="20" :total="total" style="float:right;">
-			</el-pagination>
-		</el-col>-->
 		<el-pagination v-bind:current-Page="start" v-bind:page-size="length" :total="total"
 					   layout="total,sizes,prev,pager,next,jumper" v-bind:page-sizes="pageSizes"
 					   v-on:size-change="sizeChange" v-on:current-change="pageIndexChange">
@@ -119,9 +118,7 @@
 </template>
 
 <script>
-	import {TableRequestLogin,TableCompile,TableAdded,TableDelete} from '../../fetch/api';
-	import percolate from '../../fetch/percolate'
-    import Dictionary from '../../fetch/Dictionary'
+	import {RecipeRequestLogin,RecipeCompile,RecipeAdded,RecipeDelete} from '../../fetch/api';
 	export default {
 		data() {
 			return {
@@ -142,7 +139,7 @@
                     label: '二甲C'
                 }],
 				users: [],
-                is_enable: "",
+                is_enable: "1",
                 total: 0,
                 level: 1,
 				listLoading: false,
@@ -188,7 +185,7 @@
 				//新增界面数据
 				addForm: {
                     name: '',
-                    is_enable: "",
+                    is_enable: "1",
                     level: '',
                     phone: '',
                     address: ''
@@ -199,12 +196,10 @@
 		methods: {
                 sizeChange: function (length) {
                     this.length = length;
-                    console.log(this.length)
                     this.getUsers();
                 },
                 pageIndexChange: function (start) {
                     this.start = start;
-                    console.log(this.start)
                     this.getUsers();
                 },
 			//获取用户列表
@@ -214,15 +209,13 @@
                     start:this.start,
                     length:this.length,
                 };
-                TableRequestLogin(para).then((res) => {
-                  for (let i=0; i<res.data.data.length; i++){
-                      res.data.data[i].is_enable=percolate.getNameByCode(res.data.data[i].is_enable,Dictionary.unit)
-                    }
+                RecipeRequestLogin(para).then((res) => {
                     this.total = res.data.total;
                     this.users = res.data.data;
                     this.listLoading = false;
                 }).catch((err) => {console.log(err)})
             },
+
 			//删除
 			handleDel: function (index, row) {
 				this.$confirm('确认删除该记录吗?', '提示', {

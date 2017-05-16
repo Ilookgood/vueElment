@@ -9,9 +9,9 @@
 				<el-form-item>
 					<el-button type="primary" v-on:click="getBrand">查询</el-button>
 				</el-form-item>
-				<!--	<el-form-item>
-					<el-button type="primary" @click="handleAdd">新增</el-button>
-				</el-form-item>	-->
+				<el-form-item>
+					<el-button type="primary" @click="LevelProxyGeneration">一级代理生成</el-button>
+				</el-form-item>
 			</el-form>
 		</el-col>
 		
@@ -29,10 +29,10 @@
 			<el-table-column prop="phone" label="电话号码" sortable>
 			</el-table-column>
 			<el-table-column label="指派" width="150px">
-			&lt;!&ndash;<template scope="scope">
+				<template scope="scope">
 				<div  size="small" class="Anrik" @click="handleEdit(scope.$index, scope.row)">药品授权</div>
 				<div size="small" class="Anrik" @click="handleDel(scope.$index, scope.row)">取消授权</div>
-			</template>&ndash;&gt;
+			</template>
 		</el-table-column>
 		</el-table>
 
@@ -49,10 +49,7 @@
 	</section>
 </template>
 <script>
-	/*import Search from './Search'*/
-    import axios from 'axios';
-	var baseUrl = 'http://www.test.api/api/';	
-	
+    import {HomeRequest} from '../../fetch/api';
 	export default {
 		data() {
 			return {
@@ -92,30 +89,28 @@
 			//获取用户列表
 			getBrand: function () {
 				let para = {
-                    username: this.filters.username,
-                    status: this.status,
+                    name: this.filters.username,
+                    start:this.start,
+                    length:this.length,
+                    status:this.status,
                     phone: this.phone,
                     real_name: this.real_name,
                     id_number: this.id_number
 				};
 	         	this.loading = true;
-				this.$http.get(baseUrl+"agents?start="+ this.start + "&length="+this.length+"&name="+para.username+"&status="+para.status+"&phone="+para.phone+"&real_name="+para.real_name+"&id_number="+para.id_number).then(
-				(res) => {			
-					// 处理成功的结果
-                    for (let i=0; i<res.body.data.length; i++){
-                        if(res.body.data[i].status==1){
-                            res.body.data[i].status='可用'
+                HomeRequest(para).then((res) => {
+                    console.log(res.data.data)
+                    for (let i=0; i<res.data.data.length; i++){
+                        if(res.data.data[i].is_enable==1){
+                            res.data.data[i].is_enable='可用'
                         }else {
-                            res.body.data[i].status='不可用'
+                            res.data.data[i].is_enable='不可用'
                         }
                     }
-					this.total   = res.body.total;
-					this.brands  = res.body.data;
-					this.loading = false;
-				},(ere) => {
-				
-				}
-              )
+                    this.total = res.data.total;
+                    this.brands = res.data.data;
+                    this.loading = false;
+                }).catch((err) => {console.log(err)})
 			},
             handleEdit: function (index, row) {
 				const user_id=row.id;
@@ -129,7 +124,12 @@
                 let start=this.start;
                 this.$router.push(`/Deauthorize?user_type=1&user_id=${user_id}&start=${start}`)
             },
+			/*跳二维码*/
+            LevelProxyGeneration(){
+                this.$router.push(`/QrCode`)
+            },
 		},
+
 		
 		mounted() {
 			this.getBrand();

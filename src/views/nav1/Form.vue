@@ -51,7 +51,7 @@
 					<el-input v-model="editForm.name" auto-complete="off"></el-input>
 				</el-form-item>
 				<el-form-item label="所属医院" prop="hospital">
-					<Search @searchname="searchname"  :name=this.editForm.hospitalName></Search>
+					<search @searchname="searchname"  :name=this.editForm.hospitalName></search>
 				</el-form-item>
 				<el-form-item label="是否对外开放" prop="is_enable">
 					<el-radio class="radio" v-model="editForm.is_enable" label="是" auto-complete="off">是</el-radio>
@@ -137,7 +137,10 @@
 	</section>
 </template>
 <script>
-    import axios from 'axios';
+    import {FormRequestLogin,FormCompile,FormAdded,FormDelete} from '../../fetch/api';
+    import percolate from '../../fetch/percolate'
+    import Dictionary from '../../fetch/Dictionary'
+    import search from './Search'
     export default {
         data() {
             return {
@@ -219,6 +222,9 @@
 
             }
         },
+        components:{
+            search
+        },
         methods: {
             sizeChange: function (length) {
                 this.length = length;
@@ -231,33 +237,18 @@
             //获取用户列表
             getUsers() {
                 let para = {
-                    page: this.page,
                     name: this.filters.name,
-                    is_enable: this.is_enable,
-                    phone: this.phone,
-                    label: this.label,
-                    hospitalName: this.hospitalName,
-                    hospitalLevel:this.hospitalLevel,
-                    fax:this.fax,
+                    start:this.start,
+                    length:this.length,
                 };
-                    this.$http.get("http://17p01d9617.iask.in/api/departments?start="+ this.start + "&length="+this.length+"&name="+para.name).then(
-                        (res) => {
-                            // 处理成功的结果
-							  for (let i=0; i<res.body.data.length; i++){
-							 if(res.body.data[i].is_enable==1){
-							     console.log(res.body.data[i].is_enable)
-                                 res.body.data[i].is_enable='是'
-							 }else {
-                                 res.body.data[i].is_enable='否'
-                                 }
-							 }
-                            this.total = res.body.total;
-                            this.users = res.body.data;
-                            this.listLoading = false;
-                        }, (ere) => {
-                            // 处理失败的结果
-                        }
-                    )
+                FormRequestLogin(para).then((res) => {
+                    for (let i=0; i<res.data.data.length; i++){
+                        res.data.data[i].is_enable=percolate.getNameByCode(res.data.data[i].is_enable,Dictionary.unit)
+                    }
+                    this.total = res.data.total;
+                    this.users = res.data.data;
+                    this.listLoading = false;
+                }).catch((err) => {console.log(err)})
             },
             //删除
             handleDel: function (index, row) {
@@ -265,24 +256,15 @@
                     type: 'warning'
                 }).then(() => {
                     this.listLoading = true;
-                    //NProgress.start();
-                    let para = { id: row.id };
-                    let url='http://17p01d9617.iask.in/api/departments'
-                    this.$http.delete(url+'/'+para.id).then(
-                        (res) => {
-                            // 处理成功的结果
-                            this.listLoading = false;
-                            this.$message({
-                                message: '删除成功',
-                                type: 'success'
-                            });
-                            this.getUsers();
-                        },(ere) => {
-                            console.log(ere)
-
-                        }
-                    )
-
+                    let para = row.id ;
+                    FormDelete(para).then((res) => {
+                        this.listLoading = false;
+                        this.$message({
+                            message: '删除成功',
+                            type: 'success'
+                        });
+                        this.getUsers();
+                    }).catch((err) => {console.log(err)})
                 }).catch(() => {
 
                 });
@@ -305,7 +287,6 @@
                     hospital:'',
                     hospitalLevel:'',
                     fax:'',
-                    label:'',
                     phone: '',
                     address: ''
 
@@ -324,9 +305,23 @@
                                 this.editForm.is_enable="2"
                             }
                             let para = Object.assign({}, this.editForm);
-                            let jsonli = {'name':para.name,'is_enable':para.is_enable,'hospital':para.hospital,'fax':para.fax,'phone':para.phone,'address':para.address}
-                            let url = 'http://17p01d9617.iask.in/api/departments';
-                            this.$http.put(url+'/'+para.id,jsonli).then(
+                            let jsonli = {'id':para.id,'name':para.name,'is_enable':para.is_enable,'hospital':para.hospital,'fax':para.fax,'phone':para.phone,'address':para.address}
+                            FormCompile(jsonli).then(data => {
+                                this.addLoading = false;
+                                this.$message({
+                                    message: '提交成功',
+                                    type: 'success',
+                                });
+                                this.editFormVisible = false;
+                                this.getUsers();
+                            },(error=>{
+                                this.$message({
+                                    message: '请检查提交内容是否完整',
+                                    type: 'error',
+                                });
+
+                            }))
+                         /*   this.$http.put(url+'/'+para.id,jsonli).then(
                                 (res) => {
                                     // 处理成功的结果
                                     this.addLoading = true;
@@ -335,12 +330,12 @@
                                         type: 'success',
                                     });
                                     this.editFormVisible = false;
-									/*    this.$refs['addForm'].resetFields();*/
+									/!*    this.$refs['addForm'].resetFields();*!/
                                     this.getUsers();
                                 },(ere) => {
                                     console.log(ere)
                                 }
-                            )
+                            )*/
                         });
                     }
                 });
@@ -354,8 +349,17 @@
                             this.addLoading = true;
 							/*	NProgress.start();*/
                             let para = Object.assign({}, this.addForm);
-                            let jsonli = {'name':para.name,'is_enable':para.is_enable,'hospital':para.hospital,'hospitalLevel':para.hospitalLevel,'fax':para.fax,'phone':para.phone,'address':para.address}
-                            this.$http.post("http://17p01d9617.iask.in/api/departments",jsonli,{emulateJSON: true}).then(
+                           FormAdded(para).then(data => {
+                                this.addLoading = false;
+                                this.$message({
+                                    message: '提交成功',
+                                    type: 'success',
+                                });
+                                this.addFormVisible = false;
+                                this.$refs['addForm'].resetFields();
+                                this.getUsers();
+                            });
+                          /*  this.$http.post("http://17p01d9617.iask.in/api/departments",jsonli,{emulateJSON: true}).then(
                                 (res) => {
                                     // 处理成功的结果
                                     this.addLoading = false;
@@ -364,13 +368,13 @@
                                         type: 'success',
                                     });
                                     this.editFormVisible = false;
-									/*   this.$refs['addForm'].resetFields();*/
+									/!*   this.$refs['addForm'].resetFields();*!/
                                     this.getUsers();
                                 },(ere) => {
 
 
                                 }
-                            )
+                            )*/
                         });
                     }
                 });

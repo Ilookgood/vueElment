@@ -27,9 +27,9 @@
 			</el-table-column>
 			<el-table-column prop="unit" label="单位" min-width="120" sortable>
 			</el-table-column>
-			<el-table-column prop="cateName" label="药品分类" min-width="120" sortable>
+			<el-table-column prop="cateName" label="药品品牌" min-width="120" sortable>
 			</el-table-column>
-			<el-table-column prop="branName" label="药品品牌" min-width="120" sortable>
+			<el-table-column prop="branName" label="药品分类" min-width="120" sortable>
 			</el-table-column>
 			<el-table-column label="操作" width="150">
 				<template scope="scope">
@@ -55,7 +55,7 @@
 					<el-radio class="radio" v-model="editForm.status" label="上架" >上架</el-radio>
 					<el-radio class="radio" v-model="editForm.status" label="下架" >下架</el-radio>
 				</el-form-item>
-				<el-form-item label="药品分类" prop="cate_id">
+				<el-form-item label="药品品牌" prop="cate_id">
 					<el-select v-model="editForm.cate_id" clearable placeholder="请选择">
 						<el-option
 								v-for="item in options"
@@ -65,7 +65,7 @@
 						</el-option>
 					</el-select>
 				</el-form-item>
-				<el-form-item label="药品品牌" prop="brand_id">
+				<el-form-item label="药品分类" prop="brand_id">
 					<el-select v-model="editForm.brand_id" clearable placeholder="请选择">
 						<el-option
 								v-for="item in option"
@@ -113,7 +113,7 @@
 					<el-radio class="radio" v-model="addForm.status" label="1" >上架</el-radio>
 					<el-radio class="radio" v-model="addForm.status" label="2" >下架</el-radio>
 				</el-form-item>
-				<el-form-item label="药品分类" prop="cate_id">
+				<el-form-item label="药品品牌" prop="cate_id">
 					<el-select v-model="addForm.cate_id" clearable placeholder="请选择">
 						<el-option
 								v-for="item in options"
@@ -123,7 +123,7 @@
 						</el-option>
 					</el-select>
 				</el-form-item>
-				<el-form-item label="药品品牌" prop="brand_id">
+				<el-form-item label="药品分类" prop="brand_id">
 					<el-select v-model="addForm.brand_id" clearable placeholder="请选择">
 						<el-option
 								v-for="item in option"
@@ -141,7 +141,7 @@
 						class="upload-demo"
 						action="http://up-z2.qiniu.com"
 						type="drag"
-						:on-success="handleSuccess"
+						:on-success="handleSuccessAdd"
 						:multiple="true"
 						:before-upload="beforeUpload"
 						:on-error="handleError"
@@ -166,12 +166,10 @@
 </template>
 
 <script>
-
-import NProgress from 'nprogress'
-import axios from 'axios';
 import moment from 'moment'
-var baseUrl = 'http://www.test.api/api/';
-
+import percolate from '../../fetch/percolate'
+import Dictionary from '../../fetch/Dictionary'
+import {DruglistRequestLogin,DruglistCompile,DruglistAdded,DruglistDelete,drugsCateRequest,BrandsRequest,ImagesRequest} from '../../fetch/api';
 	export default {
 		data() {
 			return {
@@ -264,33 +262,17 @@ var baseUrl = 'http://www.test.api/api/';
 			getUsers() {
                 let para = {
                     name: this.filters.name,
-                    sn_code: this.sn_code,
-                    batch_number:this.batch_number,
-                    status: this.status,
-                    unit:this.unit,
-                    cateName: this.cateName,
-                    branName: this.branName,
+                    start: this.start,
+                    length:this.length,
                 };
-
-             this.$http.get(baseUrl+"drugs?start="+ this.start + "&length="+this.length+"&name="+para.name).then(
-				 (res) => {
-				 // 处理成功的结果
-                   for (let i=0; i<res.body.data.length; i++){
-                         if(res.body.data[i].status==1){
-                             res.body.data[i].status='上架'
-                         }else {
-                             res.body.data[i].status='下架'
-                         }
-                     }
-				 this.total = res.body.total
-				 this.users = res.body.data
-				 this.listLoading = false
-
-				 }, (ere) => {
-				 // 处理失败的结果
-					 console.log(ere)
-				 }
-				 )
+                DruglistRequestLogin(para).then((res) => {
+                    for (let i=0; i<res.data.data.length; i++){
+                        res.data.data[i].status=percolate.getNameByCode(res.data.data[i].status,Dictionary.Drug)
+                    }
+                    this.total = res.data.total;
+                    this.users = res.data.data;
+                    this.listLoading = false;
+                }).catch((err) => {console.log(err)})
             },
             handleError(err, response, file) {
                 if (err.status === 401) {
@@ -304,23 +286,27 @@ var baseUrl = 'http://www.test.api/api/';
             },
             beforeUpload(file) {
                 let curr = moment().format('YYYYMMDD').toString()
-                let prefix = moment(file.lastModified).format('HHmmss').toString()
-                let suffix = file.name
-                let key = encodeURI(`${curr}/${prefix}_${suffix}`)
-                return  this.$http.get(baseUrl+"qiniutoken?key="+key).then(response => {
-                    // let bodyText=JSON.parse(response.bodyText);
-                    this.upToken = response.body.token
+                let prefix = moment(file.lastModified).format('HHmmss').toString();
+                let index1=file.name.lastIndexOf(".")
+                let index2=file.name.length;
+                let suffix1=file.name.substring(index1,index2);
+                let key = encodeURI(`${curr}/${prefix}_${suffix1}`);
+               return ImagesRequest(key).then((response) => {
+                    this.upToken = response.data.token
                     this.key = key;
                     this.form = {
                         key,
                         token: this.upToken
                     }
-                    console.log(this.token)
                 })
-
             },
-
             handleSuccess(response, file, fileList) {
+                let key = response.key;
+                let name = file.name;
+                this.editForm.image_url=key;
+                console.log(this.addForm.image_url)
+            },
+            handleSuccessAdd(response, file, fileList) {
                 let key = response.key;
                 let name = file.name;
                 this.addForm.image_url=key;
@@ -332,21 +318,15 @@ var baseUrl = 'http://www.test.api/api/';
 					type: 'warning'
 				}).then(() => {
 					this.listLoading = true;
-					let para = { id: row.id };
-					let url=baseUrl+'drugs';
-                    this.$http.delete(url+'/'+para.id).then(
-                        (res) => {
-                            // 处理成功的结果
-                            this.listLoading = false;
-                            this.$message({
-                                message: '删除成功',
-                                type: 'success'
-                            });
-                            this.getUsers();
-                        },(ere) => {
-                            console.log(ere)
-                        }
-                    )
+					let para =  row.id;
+                    DruglistDelete(para).then((res) => {
+                        this.listLoading = false;
+                        this.$message({
+                            message: '删除成功',
+                            type: 'success'
+                        });
+                        this.getUsers();
+                    }).catch((err) => {console.log(err)})
 
 				}).catch(() => {
 
@@ -354,31 +334,32 @@ var baseUrl = 'http://www.test.api/api/';
 			},
 			//显示编辑界面
 			handleEdit: function (index, row) {
-                this.$http.get(baseUrl+"drugcate?").then(
-                    (res) => {
-                        this.options=[];
-                        for (let i=0; i<res.body.data.length; i++){
-                            this.options.push({
-                                value: res.body.data[i].id,
-                                label: res.body.data[i].name,
-                            })
-                        }
+                this.editFormVisible = true;
+                this.editForm = Object.assign({}, row);
+				BrandsRequest().then((res) => {
+                    this.options=[];
+                    for (let i=0; i<res.data.data.length; i++){
+                        this.options.push({
+                            value: res.data.data[i].id,
+                            label: res.data.data[i].name,
+                        })
                     }
-                )
-                this.$http.get(baseUrl+"brands?").then(
-                    (res) => {
-                        this.option=[];
-                        for (let i=0; i<res.body.data.length; i++){
-                            this.option.push({
-                                value: res.body.data[i].id,
-                                label: res.body.data[i].brand_name,
-                            })
 
-                        }
+                })
+
+                drugsCateRequest().then((res) => {
+                    this.option=[];
+                    for (let i=0; i<res.data.data.length; i++){
+                        this.option.push({
+                            value: res.data.data[i].id,
+                            label: res.data.data[i].brand_name,
+
+                        })
+						console.log(this.option)
                     }
-                )
-				this.editFormVisible = true;
-				this.editForm = Object.assign({}, row);
+
+                })
+
 			},
 			//显示新增界面
 			handleAdd: function () {
@@ -393,29 +374,27 @@ var baseUrl = 'http://www.test.api/api/';
 					brand_id:'',
                     image_url:""
 				};
-                this.$http.get(baseUrl+"drugcate?").then(
-                    (res) => {
-                        this.options=[]
-                        for (let i=0; i<res.body.data.length; i++){
-                           this.options.push({
-                               value: res.body.data[i].id,
-                               label: res.body.data[i].name,
-                           })
-                        }
+                BrandsRequest().then((res) => {
+                    this.options=[];
+                    for (let i=0; i<res.data.data.length; i++){
+                        this.options.push({
+                            value: res.data.data[i].id,
+                            label: res.data.data[i].name,
+                        })
                     }
-                )
-                this.$http.get(baseUrl+"brands?").then(
-                    (res) => {
-                        this.option=[]
-                        for (let i=0; i<res.body.data.length; i++){
-                            this.option.push({
-                                value: res.body.data[i].id,
-                                label: res.body.data[i].brand_name,
-                            })
 
-                        }
+                });
+                drugsCateRequest().then((res) => {
+                    this.option=[];
+                    for (let i=0; i<res.data.data.length; i++){
+                        this.option.push({
+                            value: res.data.data[i].id,
+                            label: res.data.data[i].brand_name,
+
+                        })
                     }
-                )
+                });
+
 			},
 			//编辑
 		editSubmit: function () {
@@ -429,24 +408,22 @@ var baseUrl = 'http://www.test.api/api/';
                                 this.editForm.status="2"
                             }
 							let para = Object.assign({}, this.editForm);
-                        let jsonli = {'name':para.name,'sn_code':para.sn_code,'batch_number':para.batch_number,'status':para.status,'unit':para.unit,'cate_id':para.cate_id,'brand_id':para.brand_id,image_url:para.image_url}
-						let url = baseUrl+'drugs';
-                           this.$http.put(url+'/'+para.id,jsonli).then(
-                                (res) => {
-                                    this.addLoading = true;
-                                    this.$message({
-                                        message: '提交成功',
-                                        type: 'success',
-                                    });
-                                    this.editFormVisible = false;
-                                    this.getUsers();
-                                },(ere) => {
-                                   this.$message({
-                                       message: '请检查提交内容是否完整',
-                                       type: 'error',
-                                   });
-                                }
-                            )
+                        let jsonli = {'id':para.id,'name':para.name,'sn_code':para.sn_code,'batch_number':para.batch_number,'status':para.status,'unit':para.unit,'cate_id':para.cate_id,'brand_id':para.brand_id,image_url:para.image_url}
+                          DruglistCompile(jsonli).then(data => {
+                                this.addLoading = false;
+                                this.$message({
+                                    message: '提交成功',
+                                    type: 'success',
+                                });
+                                this.editFormVisible = false;
+                                this.getUsers();
+                            },(error=>{
+                                this.$message({
+                                    message: '请检查提交内容是否完整',
+                                    type: 'error',
+                                });
+
+                            }))
 						});
 					}
 				});
@@ -458,20 +435,16 @@ var baseUrl = 'http://www.test.api/api/';
 						this.$confirm('确认提交吗？', '提示', {}).then(() => {
 							this.addLoading = false;
 							let para = Object.assign({}, this.addForm);
-                            this.$http.post(baseUrl+"drugs",{'name':para.name,'sn_code':para.sn_code,'batch_number':para.batch_number,'status':para.status,'unit':para.unit,'cate_id':para.cate_id,'brand_id':para.brand_id,'image_url':para.image_url},{emulateJSON: true}).then(
-                                (res) => {
-                                    // 处理成功的结果
-                                    this.addLoading = false;
-                                    this.$message({
-                                        message: '提交成功',
-                                        type: 'success',
-                                    });
-                                    this.editFormVisible = false;
-                                    this.$refs['addForm'].resetFields();
-                                    this.getUsers();
-                                },(ere) => {
-                                }
-                            )
+                            DruglistAdded(para).then(data => {
+                                this.addLoading = false;
+                                this.$message({
+                                    message: '提交成功',
+                                    type: 'success',
+                                });
+                                this.addFormVisible = false;
+                                this.$refs['addForm'].resetFields();
+                                this.getUsers();
+                            });
 						});
 					}
 				});

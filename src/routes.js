@@ -8,11 +8,13 @@ import user from './views/nav1/user.vue'
 import brands from './views/drugs/brands.vue'
 import Druglicenselist from './views/HomeAgents/Druglicenselist.vue'
 import Deauthorize from './views/HomeAgents/Deauthorize.vue'
+import QrCode from './views/HomeAgents/QrCode.vue'
 import drugscate from './views/drugs/drugsCate.vue'
 import HomeAgentslist from './views/HomeAgents/HomeAgentslist.vue'
 import Druglist from './views/drugs/Druglist.vue'
 import Thedoctorlist from './views/Thedoctor/Thedoctorlist.vue'
 import Patientslist from './views/PatientsControl/Patientslist.vue'
+import Prescription from './views/Prescription/Prescriptionlist.vue'
 /*import Search from './views/nav1/Search.vue'
 import Page4 from './views/nav2/Page4.vue'
 import Page5 from './views/nav2/Page5.vue'
@@ -20,7 +22,7 @@ import Page6 from './views/nav3/Page6.vue'
 import echarts from './views/charts/echarts.vue'*/
 
 let routes = [
-    {
+   {
         path: '/login',
         component: Login,
         name: '',
@@ -33,17 +35,7 @@ let routes = [
         hidden: true
     },
     {
-        path: '/Druglicenselist',
-        component: Druglicenselist,
-        hidden: true
-    },
-    {
-        path: '/Deauthorize',
-        component: Deauthorize,
-        hidden: true
-    },
-    {
-        path: '/',
+        path: '/table',
         component: Home,
         name: '运营管理',
         iconCls: 'el-icon-message',
@@ -57,8 +49,10 @@ let routes = [
             { path: '/Druglist',component: Druglist, name: '药品列表' },
             { path: '/Thedoctorlist',component: Thedoctorlist, name: '医生列表' },
             { path: '/Patientslist',component: Patientslist, name: '患者列表' },
-
-
+            { path: '/Druglicenselist',component: Druglicenselist, name: '药品授权' },
+            { path: '/Deauthorize',component: Deauthorize, name: '取消授权' },
+            { path: '/QrCode',component: QrCode, name: '扫描二维码成为一级代理' },
+            { path: '/Prescription',component: Prescription, name: '处方管理' },
 
         ]
     },
@@ -94,7 +88,7 @@ let routes = [
     {
         path: '*',
         hidden: true,
-        redirect: { path: '/404' }
+        redirect: { path: '/table' }
     }
 ];
 

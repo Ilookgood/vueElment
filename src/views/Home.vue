@@ -59,6 +59,11 @@
 							<template slot="title">患者管理</template>
 							<el-menu-item index="/Patientslist">患者列表</el-menu-item>
 						</el-submenu>
+						<el-submenu index="1-9">
+							<template slot="title">处方管理</template>
+							<el-menu-item index="/Prescription">患者列表</el-menu-item>
+						</el-submenu>
+
 
 					</el-submenu>
 				</el-menu>

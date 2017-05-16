@@ -104,9 +104,7 @@
 	</section>
 </template>
 <script>
-	/*import Search from './Search'*/
-    import axios from 'axios';
-	var baseUrl = 'http://www.test.api/api/';	
+    import {PatientRequest} from '../../fetch/api';
 	
 	export default {
 		data() {
@@ -148,7 +146,9 @@
 			//获取用户列表
 			getBrand: function () {
 				let para = {
-                    username: this.filters.username,
+                    name: this.filters.username,
+                    start:this.start,
+                    length:this.length,
                     status: this.status,
                     email: this.email,
                     mobile: this.mobile,
@@ -156,113 +156,13 @@
                     height: this.height,
                     weight: this.weight,
 				};
-	         	this.loading = true;
-				this.$http.get(baseUrl+"patients?start="+ this.start + "&length="+this.length+"&name="+para.username+"&status="+para.status+"&email="+para.email+"&mobile="+para.mobile+"&id_number="+para.id_number+"&height="+para.height+"&weight="+para.weight).then(
-				(res) => {			
-					// 处理成功的结果
-                    for (let i=0; i<res.body.data.length; i++){
-                        if(res.body.data[i].status==1){
-                            res.body.data[i].status='可用'
-                        }else {
-                            res.body.data[i].status='不可用'
-                        }
-                    }
-					this.total   = res.body.total;
-					this.brands  = res.body.data;
-					this.loading = false;
-				},(ere) => {
-				
-				}
-              )
+                PatientRequest(para).then((res) => {
+                    this.total = res.data.total;
+                    this.brands = res.data.data;
+                    this.listLoading = false;
+                }).catch((err) => {console.log(err)})
 			},
 
-			//新增
-	/*		addSubmit: function () {
-                this.$refs.addForm.validate((valid) => {					    
-                    if (valid) {
-                        this.$confirm('确认提交吗？', '提示', {}).then(() => {
-							this.addLoading = false;
-
-                            let para = Object.assign({}, this.addForm);
-                            let jsonli = {'brand_name':para.brand_name,'image_url':para.image_url}							
-                            this.$http.post(baseUrl+"brands",jsonli,{emulateJSON: true}).then(
-                                (res) => {
-                                    // 处理成功的结果
-                                    this.getBrand();
-                                    this.$message({
-                                        message: '提交成功',
-                                        type: 'success',
-                                    });
-									this.addLoading = false;									
-                                    this.addFormVisible = false;                              
-                                    
-                                },(ere)=>{
-																	
-                                }
-                            )
-                        });
-                    }
-                });
-            },
-			*/
-/*			//显示编辑界面
-            handleEdit: function (index, row) {
-                this.editFormVisible = true;
-                this.editForm = Object.assign({}, row);
-            },*/
-			
-		/*	//编辑
-            editSubmit: function () {
-                this.$refs.editForm.validate((valid) => {
-                    if (valid) {
-                        this.$confirm('确认提交吗？', '提示', {}).then(() => {
-                            this.editLoading = true;
-                            let para = Object.assign({}, this.editForm);
-                            let jsonli = {'brand_name':para.brand_name,'image_url':para.image_url,}               
-                            this.$http.put(baseUrl+'brands/'+para.id,jsonli).then(
-                                (res) => {
-                                    // 处理成功的结果
-                                    this.editLoading = false;
-                                    this.$message({
-                                        message: '提交成功',
-                                        type: 'success',
-                                    });
-                                    this.editFormVisible = false;
-                                    this.getBrand();
-                                },(ere) => {
-                                    console.log(ere)
-                                }
-                            )
-                        });
-                    }
-                });
-            },
-			//删除
-            handleDel: function (index, row) {
-                this.$confirm('确认删除该记录吗?', '提示', {
-                    type: 'warning'
-                }).then(() => {
-                          
-                    let para = { id: row.id };				
-                    let url=baseUrl+'brands'
-                    this.$http.delete(url+'/'+para.id).then(
-                        (res) => {
-                            // 处理成功的结果
-                          
-							this.getBrand();
-                            this.$message({
-                                message: '删除成功',
-                                type: 'success'
-                            });			
-                        },(ere) => {
-						
-                        }
-                    )
-
-                }).catch(() => {
-
-                });
-            },*/
 		},
 		
 		mounted() {

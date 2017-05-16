@@ -49,22 +49,18 @@
 		<el-pagination v-bind:current-Page="start" v-bind:page-size="length" :total="total"
 					   layout="total,sizes,prev,pager,next,jumper" v-bind:page-sizes="pageSizes"
 					   v-on:size-change="sizeChange" v-on:current-change="pageIndexChange">
-
 		</el-pagination>
 		<div class="block">
 			<span class="wrapper">
 			<el-button type="success"  @click="assign">指派</el-button>
+				<el-button type="info"  @click="Returns">返回</el-button>
 		  </span>
 		</div>
 	</section>
 </template>
 
 <script>
-
-    import NProgress from 'nprogress'
-    import axios from 'axios';
-    import moment from 'moment'
-    var baseUrl = 'http://www.test.api/api/';
+    import {DrugRequest,Designate,drugsCateRequest,BrandsRequest} from '../../fetch/api';
 
     export default {
         data() {
@@ -97,6 +93,9 @@
             }
         },
         methods: {
+            Returns(){
+                this.$router.back(-1)
+			},
             sizeChange: function (length) {
                 this.length = length;
                 this.getUsers();
@@ -108,79 +107,70 @@
 
             //获取用户列表
             getUsers() {
-                this.$http.get(baseUrl+"drugcate?").then(
-                    (res) => {
-                        this.options=[];
-                        for (let i=0; i<res.body.data.length; i++){
-                            this.options.push({
-                                value: res.body.data[i].id,
-                                label: res.body.data[i].name,
-                            })
-                        }
+                BrandsRequest().then((res) => {
+                    this.options=[];
+                    for (let i=0; i<res.data.data.length; i++){
+                        this.options.push({
+                            value: res.data.data[i].id,
+                            label: res.data.data[i].name,
+                        })
                     }
-                )
-                this.$http.get(baseUrl+"brands?").then(
-                    (res) => {
-                        this.option=[];
-                        for (let i=0; i<res.body.data.length; i++){
-                            this.option.push({
-                                value: res.body.data[i].id,
-                                label: res.body.data[i].brand_name,
-                            })
-                        }
 
+                });
+                drugsCateRequest().then((res) => {
+                    this.option=[];
+                    for (let i=0; i<res.data.data.length; i++){
+                        this.option.push({
+                            value: res.data.data[i].id,
+                            label: res.data.data[i].brand_name,
+
+                        })
                     }
-                )
+                });
                 let para = {
                     name: this.filters.name,
+                    start:this.start,
+                    length:this.length,
                     cate_id:this.filters.cate_id,
-                    brand_id:this.filters.brand_id
+                    brand_id:this.filters.brand_id,
+                    user_id: this.$route.query.user_id,
+                    user_type:1,
                 };
-                console.log(para.cate_id)
-                console.log(para.brand_id)
-                let user_id= this.$route.query.user_id;
-                this.$http.get(baseUrl+"drugspermission?user_type="+ 1 +"&user_id="+user_id +"&start="+this.start +"&length="+this.length+"&name="+para.name).then(
-                    (res) => {
-                        // 处理成功的结果
-                        for (let i=0; i<res.body.data.length; i++){
-                            if(res.body.data[i].status==1){
-                                res.body.data[i].status='上架'
-                            }else {
-                                res.body.data[i].status='下架'
-                            }
+                DrugRequest(para).then((res) => {
+                    for (let i=0; i<res.data.data.length; i++){
+                        if(res.data.data[i].status==1){
+                            res.data.data[i].status='上架'
+                        }else {
+                            res.data.data[i].status='下架'
                         }
-                        this.total = res.body.total
-                        this.users = res.body.data
-                        this.listLoading = false
-
-                    }, (ere) => {
-                        // 处理失败的结果
-                        console.log(ere)
                     }
-                )
+                    this.total = res.data.total;
+                    this.users = res.data.data;
+                    this.listLoading = false;
+                }).catch((err) => {console.log(err)})
 
             },
-
-
             assign(){
-                let url = baseUrl+'drugspermission';
-                this.$http.post(url,this.sels).then(
-                    (res) => {
-                        this.addLoading = true;
-                        this.$message({
-                            message: '提交成功',
-                            type: 'success',
-                        });
-                        this.editFormVisible = false;
-                        this.getUsers();
+				let para=this.sels;
+				console.log(this.sels)
+               if(this.sels.length==0){
+                   this.$message({
+                       message: '请选择要指派的商品',
+                       type: 'error',
+                   });
+			   }else {
+                   Designate(this.sels).then(data => {
+                       this.addLoading = false;
+                       this.$message({
+                           message: '提交成功',
+                           type: 'success',
+                       });
+                       this.addFormVisible = false;
+                       this.getUsers();
+                   })
 
-                    },(ere) => {
-                        this.$message({
-                            message: '请检查提交内容是否完整',
-                            type: 'error',
-                        });
-                    }
-                )
+			   }
+
 			},
             selsChange: function(sels) {
             this.sels=[];

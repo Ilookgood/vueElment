@@ -16,6 +16,7 @@
     "font-awesome": "^4.7.0",
     "moment": "^2.18.1",
     "nprogress": "^0.2.0",
+    "qrcode": "^0.8.1",
     "vue": "^2.2.2",
     "vue-router": "^2.3.0",
     "vuex": "^2.0.0-rc.6"

@@ -17,8 +17,7 @@
 </template>
 
 <script type="text/javascript">
-
-    import axios from 'axios';
+    import {SearchRequestLogin} from '../../fetch/api';
     /* import logoSelect from './logo-select.vue';*/
     export default {
         data: function() {
@@ -36,7 +35,26 @@
                 if (ev.keyCode == 38 || ev.keyCode == 40) {
                     return;
                 }
-                this.$http.get('http://17p01d9617.iask.in/api/hospitals?hospital='+ this.hospital+'&name='+this.name).then(function(res) {
+                let para={hospital:this.hospital,name:this.name}
+              /*  SearchRequestLogin(para).then((res) => {
+                    let names=res.body.data;
+                    console.log(names)
+                    let  hiat=this;
+                    for(var i=0;i<names.length; i++ ){
+                        let datas=hiat.myData.length;
+                        if(datas>10){
+                            hiat.myData=[];
+                        }else if(this.name=="") {
+                            hiat.myData=[]
+                        }else {
+                            hiat.myData.push(names[i].name);
+                            this.hospital=names[i].id;
+                            console.log(this.hospital)
+                            return
+                        }
+                    }
+                }).catch((err) => {console.log(err)})*/
+             this.$http.get('http://www.test.api/api/hospitals?hospital='+ this.hospital+'&name='+this.name).then(function(res) {
                     let names=res.body.data;
                     console.log(names)
                     let  hiat=this;
@@ -86,7 +104,7 @@
                 this.search();
             },
             clearInput: function() {
-                this.$http.get('http://17p01d9617.iask.in/api/hospitals?name='+ this.name ).then(function(res) {
+                this.$http.get('http://www.test.api/api/hospitals?name='+ this.name ).then(function(res) {
                     this.myData = [];
                     /* console.log( this.myData+1)*/
                 });

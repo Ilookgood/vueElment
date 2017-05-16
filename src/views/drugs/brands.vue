@@ -36,7 +36,7 @@
                         class="upload-demo"
                         action="http://up-z2.qiniu.com"
 						type="drag"
-                        :on-success="handleSuccess"
+                        :on-success="handleSuccessAdd"
 						:multiple="true"
                         :before-upload="beforeUpload"
                         :on-error="handleError"
@@ -91,9 +91,8 @@
 </template>
 <script>
     import moment from 'moment'
-    import axios from 'axios';
-	var baseUrl = 'http://www.test.api/api/';	
-	
+    import {drugsCateRequest,drugsCateAdded,drugsCateCompile,ImagesRequest,drugsCateDelete} from '../../fetch/api';
+
 	export default {
 		data() {
 			return {
@@ -125,7 +124,7 @@
 				editFormVisible:false, 
 				editLoading:false,
 				editFormRules: {
-					brand_name: 
+					brand_name:
 					[
 						{ 
 							required: true, message: '请输入品牌名称', trigger: 'blur' 
@@ -152,19 +151,16 @@
 			//获取用户列表
 			getBrand: function () {
 				let para = {
-					brand_name: this.filters.brand_name
+					brand_name: this.filters.brand_name,
+                    start:this.start,
+					length:this.length
 				};
 	         	this.loading = true;
-				this.$http.get(baseUrl+"brands?start="+ this.start + "&length="+this.length+"&name="+para.brand_name).then(
-				(res) => {			
-					// 处理成功的结果                               
-					this.total   = res.body.total
-					this.brands  = res.body.data
-					this.loading = false;
-				},(ere) => {
-				
-				}
-              )
+                drugsCateRequest(para).then((res) => {
+                    this.total = res.data.total;
+                    this.brands = res.data.data;
+                    this.loading = false;
+                }).catch((err) => {console.log(err)})
 			},
 			//显示编辑界面
 			handleEdit: function (index, row) {			
@@ -175,7 +171,7 @@
 				this.addFormVisible = true;
 				this.addForm = {
                     brand_name: '',
-                    image_url:"",
+                    image_url:''
                 };
 			},
             handleError(err, response, file) {
@@ -194,10 +190,9 @@
 				let index1=file.name.lastIndexOf(".")
 				let index2=file.name.length;
 				let suffix1=file.name.substring(index1,index2);
-                    let key = encodeURI(`${curr}/${prefix}_${suffix1}`)
-                  return  this.$http.get(baseUrl+"qiniutoken?key="+key).then(response => {
-                   // let bodyText=JSON.parse(response.bodyText);
-                    this.upToken = response.body.token
+                    let key = encodeURI(`${curr}/${prefix}_${suffix1}`);
+                return ImagesRequest(key).then((response) => {
+                    this.upToken = response.data.token
                     this.key = key;
                     this.form = {
                         key,
@@ -210,8 +205,14 @@
             handleSuccess(response, file, fileList) {
                 let key = response.key;
                 let name = file.name;
-			 this.addForm.image_url=key;
+			 this.editForm.image_url=key;
 			 console.log(this.addForm.image_url)
+            },
+            handleSuccessAdd(response, file, fileList) {
+                let key = response.key;
+                let name = file.name;
+                this.addForm.image_url=key;
+                console.log(this.addForm.image_url)
             },
 
 			//新增
@@ -221,22 +222,16 @@
                         this.$confirm('确认提交吗？', '提示', {}).then(() => {
 							this.addLoading = false;
                             let para = Object.assign({}, this.addForm);
-                            let jsonli = {'brand_name':para.brand_name,'image_url':para.image_url}							
-                            this.$http.post(baseUrl+"brands",jsonli,{emulateJSON: true}).then(
-                                (res) => {
-                                    // 处理成功的结果
-                                    this.getBrand();
-                                    this.$message({
-                                        message: '提交成功',
-                                        type: 'success',
-                                    });
-									this.addLoading = false;									
-                                    this.addFormVisible = false;                              
-                                    
-                                },(ere)=>{
-																	
-                                }
-                            )
+                            drugsCateAdded(para).then(data => {
+                                this.addLoading = false;
+                                this.$message({
+                                    message: '提交成功',
+                                    type: 'success',
+                                });
+                                this.addFormVisible = false;
+                                this.getBrand();
+
+                            });
                         });
                     }
                 });
@@ -255,21 +250,22 @@
                         this.$confirm('确认提交吗？', '提示', {}).then(() => {
                             this.editLoading = true;
                             let para = Object.assign({}, this.editForm);
-                            let jsonli = {'brand_name':para.brand_name,'image_url':para.image_url,}               
-                            this.$http.put(baseUrl+'brands/'+para.id,jsonli).then(
-                                (res) => {
-                                    // 处理成功的结果
-                                    this.editLoading = false;
-                                    this.$message({
-                                        message: '提交成功',
-                                        type: 'success',
-                                    });
-                                    this.editFormVisible = false;
-                                    this.getBrand();
-                                },(ere) => {
-                                    console.log(ere)
-                                }
-                            )
+                            let jsonli = {'id':para.id,'brand_name':para.brand_name,'image_url':para.image_url,}
+                            drugsCateCompile(jsonli).then(data => {
+                                this.addLoading = false;
+                                this.$message({
+                                    message: '提交成功',
+                                    type: 'success',
+                                });
+                                this.editFormVisible = false;
+                                this.getBrand();
+                            },(error=>{
+                                this.$message({
+                                    message: '请检查提交内容是否完整',
+                                    type: 'error',
+                                });
+
+                            }))
                         });
                     }
                 });
@@ -279,22 +275,16 @@
                 this.$confirm('确认删除该记录吗?', '提示', {
                     type: 'warning'
                 }).then(() => {
-                          
-                    let para = { id: row.id };				
-                    let url=baseUrl+'brands'
-                    this.$http.delete(url+'/'+para.id).then(
-                        (res) => {
-                            // 处理成功的结果
-                          
-							this.getBrand();
-                            this.$message({
-                                message: '删除成功',
-                                type: 'success'
-                            });			
-                        },(ere) => {
-						
-                        }
-                    )
+                    let para =row.id ;
+                    drugsCateDelete(para).then((res) => {
+                        this.listLoading = false;
+
+                        this.$message({
+                            message: '删除成功',
+                            type: 'success'
+                        });
+                        this.getBrand();
+                    }).catch((err) => {console.log(err)})
 
                 }).catch(() => {
 
